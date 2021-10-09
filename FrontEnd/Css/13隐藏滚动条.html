@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>13隐藏滚动条</title>
+  <style>
+  .box {
+    width: 375px;
+    overflow: scroll;
+  }
+
+  /* 关键代码 */
+  .box-hide-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome Safari */
+  }
+
+  .box > div {
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #f5f6f9;
+    border-radius: 6px;
+    font-size: 12px;
+    width: 750px;
+  }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div>
+      爱情会离开，朋友会离开，快乐会离开，但是考试不会,因为你不会就不会只是因为在人群中多看了你一眼，你就--问我游泳健身了解一下？
+    </div>
+  </div>
+  
+  <div class="box box-hide-scrollbar">
+    <div>爱情会离开，朋友会离开，快乐会离开，但是考试不会,因为你不会就不会只是因为在人群中多看了你一眼，你就--问我游泳健身了解一下？</div>
+  </div>  
+</body>
+</html>

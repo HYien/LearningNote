@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>01解决img5px间距问题</title>
+  <style>
+    html,body {
+      margin: 0;
+      padding: 0;
+    }
+    
+    /* 方法一 */
+    .img-container {
+      background-color: lightblue;
+      /* 关键代码 */
+      font-size: 0; 
+    }
+
+    .img-container img {
+      width: 100%;
+    }
+
+    /* 方法2 */
+    .img-container1 {
+      background-color: lightblue;
+    }
+
+    .img-container1 img {
+      width: 100%;
+      /* 关键代码 */
+      display: block;
+    }
+
+    /* 方法3 */
+    .img-container2 {
+      background-color: lightblue;
+    }
+
+    .img-container2 img {
+      width: 100%;
+      /* 关键代码 */
+      vertical-align: bottom;
+    }
+
+    /* 方法4 */
+    .img-container3 {
+      background-color: lightblue;
+      /* 关键代码 */
+      line-height: 5px;
+    }
+
+    .img-container3 img {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="img-container">
+    <img src="./images/demo.jpg" alt="demo">
+  </div>
+
+  <div class="img-container1">
+    <img src="./images/demo.jpg" alt="demo">
+  </div>
+
+  <div class="img-container2">
+    <img src="./images/demo.jpg" alt="demo">
+  </div>
+
+  <div class="img-container3">
+    <img src="./images/demo.jpg" alt="demo">
+  </div>
+</body>
+</html>

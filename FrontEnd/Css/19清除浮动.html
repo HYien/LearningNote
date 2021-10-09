@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>19.清除浮动</title>
+  <style>
+    body {
+      padding: 15px;
+      color: #324b64;
+    }
+    /* 关键代码 */
+    /* 清除浮动 */
+    .clearfix{
+      zoom: 1;
+    }
+    .clearfix::after{
+      display: block;
+      content: '';
+      clear: both;
+    }
+
+    .box {
+      padding: 10px;
+      background-color: #f5f6f9;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .box >div{
+      width: 29%;
+      height: 100px;
+    }
+
+    .float-left{
+      background-color: #faa755;
+      float: left;
+      margin-right: 10px;
+    }
+
+    .float-left2{
+      background-color: #7fb80e;
+    }
+
+    .float-left3{
+      background-color: #b2d235;
+    }
+  </style>
+</head>
+<body>
+  <div class="box clearfix">
+    <div class="float-left"></div>
+    <div class="float-left float-left2"></div>
+    <div class="float-left float-left3"></div>
+  </div>
+</body>
+</html>
