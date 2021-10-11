@@ -213,5 +213,135 @@ function deepClone(obj) {
 
 ## 手写题
 
-+ 防抖
+## 防抖
++ 作用：解决按钮防二次点击的操作或者滚动事件种做复杂计算
++ 防抖实现核心思路：每次触发函数的间隔小于阈值，防抖情况下只会调用一次
++ 区别于节流：节流情况会每隔一定时间调用函数
+
++ 简单防抖例子
+~~~javascript
+  //func 用户传入需要防抖的函数
+  //wait 设置时间阈值
+  const debounce = (func,wait = 50) => {
+    let timer = 0
+    return function(...args) {
+      if (timer) clearTimeout(timer)
+      timer = serTimeout(() => {
+        func.apply(this,args)
+      },wait)
+    }
+  }
+~~~
+
++ 带有立即执行选项的防抖函数
+~~~javascript
+  /**
+  * @param {function} func 回调函数
+  * @param {number} wait 表示时间窗口的间隔
+  * @param {number} immediate 设置为true，立即调用函数
+  * @return {funcition}
+  **/
+  function debounce (func, wait = 50, immediate = true) {
+    let timer, context, args
+
+    //延迟执行函数
+    const later = () => setTimeout(() => {
+      timer = null
+      if (!immediate) {
+        func.apply(context,args)
+        context = args = null
+      }
+    },wait)
+
+    return function(...params) {
+      if (!timer) {
+        timer = later()
+
+        if (!immediate) {
+          func.apply(this,params)
+        } else {
+          context = this
+          args = params
+        }
+      } else {
+        clearTimeout(timer)
+        timer = later()
+      }
+    }
+  }
+~~~
+
+## 节流
++ 节流核心：多次执行变成每隔一段时间执行
++ 应用核心： 现在的需求是这样的，用户在输入框内疯狂输入字符串，每经过1s就向后台发起请求查询数据库
+
++ 节流的简单实现
+~~~javascript
+  function throttle (func,wait) {
+    let timeout 
+    return function() {
+      if (!timeout) {
+        timeout = setTimeout(() => {
+          timeout = null
+          func.call(this.arguments)
+        },wait)
+      }
+    }
+  }
+~~~
+
+~~~javascript
+  //获取当前时间时间戳
+  function now() {
+    return +new Date()
+  }
+
+  /**
+  * @param {function} func 回调函数
+  * @param {number} wait 表示时间窗口的间隔
+  * @param {number} options 如果想忽略开始函数的的调用，传入{leading: false}。
+  *                         如果想忽略结尾函数的调用，传入{trailing: false}
+  * @return {funcition}
+  **/
+  function throttle (func, wait = 50, options) {
+    var context, args, result
+    var timeout = null
+
+    //之前时间戳
+    var previous = 0
+    if (!options) options = options
+
+    var later = () => {
+      previous = options.leading === false ? 0 : now()
+
+      timeout = null
+      result = func.apply(context,args)
+      if (!timeout) context = args = null
+    }
+
+    return  funciton() {
+      var now = now()
+      if (!previous && options.leading === false) previous = now
+      var remaining = wait - (now - previous)
+      context = this
+      args = arguments
+
+      if (remaining <= 0 || remaining > wait) {
+        if (timeout) {
+          clearTimeout(timeout)
+          timeout = null
+        } 
+        previous = now
+        result = func.apply(context,args)
+
+        if (!timeout) context = args = null
+      } else if (!timeout && options.tailing !== false) {
+        timeout = setTimeout(later,remaining)
+      }
+      return result
+    }
+  }
+~~~
+
+
 
