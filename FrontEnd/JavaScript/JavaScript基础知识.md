@@ -69,6 +69,18 @@
   + 执行构造函数代码
   + 返回新对象
 
++ 实现new
+~~~javascript
+  function _new() {
+    var obj = {}
+    var constructorFunc = [].shift.call(arguments)
+    obj.__proto__ = constructorFunc.prototype
+    var params = arguments
+    var res = constructorFunc.apply(obj,params)
+    return res instanceof Object ? res : obj
+  }
+~~~
+
 ## 作用域
 
 + 概念：变量的可访问性
@@ -82,7 +94,7 @@
 + 所有对象都有属性__proto__指向一个对象，也就是原型
 + 每个对象的原型都可以通过constructor找到构造函数，构造函数也可以通过prototype找到原型
 + 所有函数都可以通过__proto__找到Function对象
-+ 所有对象都可以通过proto找到Object对象
++ 所有对象都可以通过__proto__找到Object对象
 + 对象之间通过__proto__链接起来，这样称之为原型链。当前对象上不存在的属性可以通过原型链一层层往上走，直到顶层Object对象，再往上就是null
 
 ## 继承
@@ -131,6 +143,7 @@ function deepClone(obj) {
 		
 		//克隆一份对象
 		let desc = Object.getOwnPropertyDescriptors(obj)
+    //浅拷贝
 		let clone = Object.create(Object.getPrototypeOf(obj),desc)
 		map.set(obj,clone)
 		for (let key in obj) {
@@ -147,7 +160,73 @@ function deepClone(obj) {
 
 
 ## Promise
++ 使用all实现并行请求
++ Promise all 错误处理
++ 手写all
 
++ 问题
+页面上有三个按钮，分别为 A、B、C，点击各个按钮都会发送异步请求且互不影响，每次请求回来的数据都为按钮的名字。 请实现当用户依次点击 A、B、C、A、C、B 的时候，最终获取的数据为 ABCACB。
+
+~~~javascript
+//队列
+    class Queue {
+      promise = Promise.resolve()
+
+      excute(promise) {
+        this.promise = this.promise.then(() => promise)
+        return this.promise
+      }
+    }
+
+    const queue = new Queue()
+    const delay = (params) => {
+      const time = Math.floor(Math.random()*5)
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(params)
+        },time*500)
+      })
+    }
+
+    const handleClick = async (name) => {
+      const res = await queue.excute(delay(name))
+      console.log(res)
+    }
+
+    handleClick('A');
+    handleClick('B');
+    handleClick('C');
+    handleClick('A');
+    handleClick('C');
+    handleClick('B');
+~~~
+
++ async\await
+  await与直接使用Promise在于处理then调用链的问题，但滥用await可能会导致性能问题
+  + 容易做错的笔试题
+~~~javascript
+  var a = 0
+  var b = async () => {
+    a = a + await 10
+    console.log('2',a)
+  }
+  b()
+  a++
+  console.log('1',a)
+
+  // '1' 1 , '2' 10
+  // 其实 a 为 0 是因为加法运算法，先算左边再算右边，所以会把 0 固定下来
+
+  //如果改成如下,则b()输出11
+  var a = 0
+  var b = async () => {
+    a = await 10 + a 
+    console.log('2',a)
+  }
+  b()
+  a++
+  console.log('1',a)
+~~~
 ## 事件循环
 
 + JS是一门单线程语言，在执行过程中永远只能同时执行一个任务，任何异步的调用都只是在模拟这个过程，或者说可以直接认为在JS中的异步就是延迟执行的同步代码。
@@ -161,7 +240,37 @@ function deepClone(obj) {
   + 执行所有微任务且微任务队列为空
   + 是否有必要渲染页面
   + 执行一个宏任务
++ 代码模拟事件Event Loop做了什么？
+~~~javascript
+  console.log('script start')
 
+  setTimeout(() => {
+    console.log('setTimeout')
+  },0)
+
+  Promise.resolve().then(() => {
+    queueMicrotask(() => console.log('queueMicrotask'))
+    console.log('promise')
+  })
+
+  console.log('script end')
+
+  //1.遇到console.log执行并打印
+  //2.遇到setTimeout,将回调加入宏任务队列
+  //3.Promise.resolve(),此时状态已经改变,因此将then回调加入微任务队列
+  //4.console.log执行并打印
+  //5.微任务队列存在任务，开始执行then回调函数
+  //6.遇到queueMicrotask，将其加入微任务队列
+  //7.遇到console.log执行并打印
+  //8.检查发现微任务队列存在任务，执行queueMicrotask
+  //9.遇到console.log执行并打印
+  //10.执行宏任务，开始执行setTimeout回调
+  //11.遇到console.log执行并打印
+~~~
+  + 什么是事件循环？
+  + JS 的执行原理？
+  + 哪些是微宏任务？
+  + 定时器是准时的嘛？
 ## 模块化
 
 + CommonJS
@@ -246,7 +355,7 @@ function deepClone(obj) {
 
     //延迟执行函数
     const later = () => setTimeout(() => {
-      timer = null
+      timer = null //及时清除timer
       if (!immediate) {
         func.apply(context,args)
         context = args = null
@@ -257,7 +366,7 @@ function deepClone(obj) {
       if (!timer) {
         timer = later()
 
-        if (!immediate) {
+        if (immediate) {
           func.apply(this,params)
         } else {
           context = this
@@ -283,7 +392,7 @@ function deepClone(obj) {
       if (!timeout) {
         timeout = setTimeout(() => {
           timeout = null
-          func.call(this.arguments)
+          func.call(this,...arguments)
         },wait)
       }
     }
@@ -296,51 +405,71 @@ function deepClone(obj) {
     return +new Date()
   }
 
-  /**
-  * @param {function} func 回调函数
-  * @param {number} wait 表示时间窗口的间隔
-  * @param {number} options 如果想忽略开始函数的的调用，传入{leading: false}。
-  *                         如果想忽略结尾函数的调用，传入{trailing: false}
-  * @return {funcition}
-  **/
-  function throttle (func, wait = 50, options) {
-    var context, args, result
-    var timeout = null
-
-    //之前时间戳
-    var previous = 0
-    if (!options) options = options
-
-    var later = () => {
-      previous = options.leading === false ? 0 : now()
-
-      timeout = null
-      result = func.apply(context,args)
-      if (!timeout) context = args = null
-    }
-
-    return  funciton() {
-      var now = now()
-      if (!previous && options.leading === false) previous = now
-      var remaining = wait - (now - previous)
-      context = this
-      args = arguments
-
+/**
+ * underscore 节流函数，返回函数连续调用时，func 执行频率限定为 次 / wait
+ *
+ * @param  {function}   func      回调函数
+ * @param  {number}     wait      表示时间窗口的间隔
+ * @param  {object}     options   如果想忽略开始函数的的调用，传入{leading: false}。
+ *                                如果想忽略结尾函数的调用，传入{trailing: false}
+ *                                两者不能共存，否则函数不能执行
+ * @return {function}             返回客户调用函数   
+ */
+throttle = function(func, wait, options) {
+    var context, args, result;
+    var timeout = null;
+    // 之前的时间戳
+    var previous = 0;
+    // 如果 options 没传则设为空对象
+    if (!options) options = {};
+    // 定时器回调函数
+    var later = function() {
+      // 如果设置了 leading，就将 previous 设为 0
+      // 用于下面函数的第一个 if 判断
+      previous = options.leading === false ? 0 : now();
+      // 置空一是为了防止内存泄漏，二是为了下面的定时器判断
+      timeout = null;
+      result = func.apply(context, args);
+      if (!timeout) context = args = null;
+    };
+    return function() {
+      // 获得当前时间戳
+      var now = now();
+      // 首次进入前者肯定为 true
+      // 如果需要第一次不执行函数
+      // 就将上次时间戳设为当前的
+      // 这样在接下来计算 remaining 的值时会大于0
+      if (!previous && options.leading === false) previous = now;
+      // 计算剩余时间
+      var remaining = wait - (now - previous);
+      context = this;
+      args = arguments;
+      // 如果当前调用已经大于上次调用时间 + wait
+      // 或者用户手动调了时间
+ 	    // 如果设置了 trailing，只会进入这个条件
+      // 如果没有设置 leading，那么第一次会进入这个条件
+      // 还有一点，你可能会觉得开启了定时器那么应该不会进入这个 if 条件了
+      // 其实还是会进入的，因为定时器的延时
+      // 并不是准确的时间，很可能你设置了2秒
+      // 但是他需要2.2秒才触发，这时候就会进入这个条件
       if (remaining <= 0 || remaining > wait) {
+        // 如果存在定时器就清理掉否则会调用二次回调
         if (timeout) {
-          clearTimeout(timeout)
-          timeout = null
-        } 
-        previous = now
-        result = func.apply(context,args)
-
-        if (!timeout) context = args = null
-      } else if (!timeout && options.tailing !== false) {
-        timeout = setTimeout(later,remaining)
+          clearTimeout(timeout);
+          timeout = null;
+        }
+        previous = now;
+        result = func.apply(context, args);
+        if (!timeout) context = args = null;
+      } else if (!timeout && options.trailing !== false) {
+        // 判断是否设置了定时器和 trailing
+	      // 没有的话就开启一个定时器
+        // 并且不能不能同时设置 leading 和 trailing
+        timeout = setTimeout(later, remaining);
       }
-      return result
-    }
-  }
+      return result;
+    };
+  };
 ~~~
 
 ## Event Bus
@@ -447,6 +576,21 @@ Function.prototype.myBind = function(context) {
     } 
 
     return _this.apply(context,args.concat(...arguments))
+  }
+}
+~~~
+
+## curry(高级柯里化实现)
+~~~javascript
+function curry(func) {
+  return function curried(...args) {
+    if (args.length >= func.length) {
+      return func.apply(this,args)
+    } else {
+      return function(...args2) {
+        return curried.apply(this,args.concat(args2))
+      }
+    }
   }
 }
 ~~~
