@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    //generate
+    function* foo() {
+      yield 1;
+      yield 2;
+      yield 3;
+      yield 4;
+      yield 5;
+      return 6;
+    }
+
+    for (let v of foo()) {
+      console.log(v)
+    }
+    // 1 2 3 4 5
+    //斐波那契数列
+    function* fibonacci() {
+      let [prev,curr] = [0,1]
+      for (;;) {
+        yield curr;
+        //解构
+        [prev,curr] = [curr,prev + curr]
+      }
+    }
+
+    for (let n of fibonacci()) {
+      if (n > 1000) break;
+      console.log(n)
+    }
+
+    //遍历keys
+    function* objectEntries(obj) {
+      let propKeys = Reflect.ownKeys(obj)
+
+      for (let propKey of propKeys) {
+        yield [propKey,obj[propKey]]
+      }
+    }
+
+    let jane = { first: 'Jane' ,last: 'Doe'}
+
+    for (let [key,value] of objectEntries(jane)) {
+      console.log(`${key}:${value}`)
+    }
+
+    console.log('for of 循环')
+    function* numbers () {
+      yield 1
+      yield 2
+      return 3
+      yield 4
+    }
+
+    //扩展运算符
+    [...numbers()]  //[1,2]
+
+    //Array.from方法
+    Array.from(numbers()) //[1,2]
+
+    //解构
+    let [x,y] = numbers()
+    console.log(x,y)
+
+    //for...of循环
+    for (let n of numbers()) {
+      console.log(n)
+    }
+
+    //4. Generator.prototype.throw
+    var g = function* () {
+      try {
+        yield
+      } catch (e) {
+        console.log('内部捕获',e)
+      }
+    }
+
+    var i = g()
+    i.next()
+    //建议抛出Error对象的实例
+    i.throw(new Error('出错了'))
+
+    try {
+      i.throw('a')
+      i.throw('b')
+    } catch (e) {
+      console.log('外部捕获',e)
+    }
+
+    //内部捕获 a
+    //外部捕获 b
+
+    var g = function* () {
+      while (true) {
+        try {
+          yield
+        } catch (e) {
+          if (e != 'a') throw e
+          console.log('内部捕获',e)
+        }
+      }
+    }
+
+    var i = g()
+    i.next()
+
+    try {
+      throw new Error('a')
+      throw new Error('b')
+    } catch (e) {
+      console.log('外部捕获',e)
+    }
+    // 外部捕获 [Error:a]
+
+    var gen = function* gen() {
+      yield console.log('hello')
+      yield console.log('world')
+    }
+
+    var g = gen()
+    g.next()
+    //导致程序报错，中断执行
+    g.throw()
+
+    // Generator.prototype.return
+    function* gen() {
+      yield 1
+      yield 2
+      yield 3
+    }
+
+    var g = gen()
+    g.next() //{value: 1,done: false}
+    g.return('foo') //{value: "foo",done: true}
+    g.next() //{value: undefined,done: true}
+
+    function* gen() {
+      yield 1
+      yield 2
+      yield 3
+    }
+
+    var g = gen()
+    g.next()
+    g.return()
+
+    function* numbers() {
+      yield 1
+      try {
+        yield 2
+        yield 3
+      } finally {
+        yield 4
+        yield 5
+      }
+      yield 6
+    }
+    //return方法会导致立即进入finally代码块
+    var g = numbers()
+    g.next() //{value:1,done:false}
+    g.next() //{value:2,done:false}
+    g.return(7) //{value:4,done:false}
+    g.next() //{value:5,done:false}
+    g.next() //{value:7,done:true}
+
+    //6.next() throw() return()的共同点 //让generator函数恢复执行
+    //1.next()将yield表达式替换成一个值
+    const g = function* (x,y) {
+      let result = yield x + y
+      return result
+    }
+    const gen = g(1,2)
+    gen.next() //Object {value: 3,done: false}
+    gen.next(1) //Object {value:1,done: true}
+    //相当于将let result = yield x + y
+    //替换成let result = 1
+
+    //2.throw()将yield表达式替换成一个throw语句
+    gen.throw(new Error('出错了')) //Uncaught Error: 出错了
+    //相当于将let result = yield x + y
+    //替换成let result = throw(new Error('出错了'))
+
+    //3.return() 是将yield表达式替换成一个return语句
+    gen.return(2) // {value:2,done:true}
+    //相当于将let result = yield x + y
+    //替换成let result = return 2
+
+    // 7. yield* 表达式
+    //再Generator函数内部调用另一个Generator函数
+    function* foo() {
+      yield 'a'
+      yield 'b'
+    }
+
+    function* bar() {
+      yield 'x'
+
+      for (let i of foo()) {
+        console.log(i)
+        yield i
+      }
+
+      yield 'y'
+    }
+
+    for (let v of bar()) {
+      console.log(v)
+    }
+
+    //为了解决generator嵌套函数 提供yield*表达式
+    function* bar() {
+      yield 'x'
+      yield* foo()
+      yield 'y'
+    }
+
+    let delegatedIterator = (function* () {
+      yield 'Hello!';
+      yield 'Bye!';
+    }())
+
+    let delegatingIterator = (function* () {
+      yield 'Greetings!';
+      yield* delegatedIterator;
+      yield 'Ok,bye.';
+    }());
+
+    for (let value of delegatingIterator) {
+      console.log(value)
+    }
+
+    //'Greetings!'
+    //'Hello!'
+    //'Bye!'
+    //'Ok,bye!'z
+
+    function* concat(iter1,iter2) {
+      yield* iter1;
+      yield* iter2;
+    }
+
+    //等同于
+    function* concat(iter1,iter2) {
+      for (var value of iter1) {
+        yield value
+      }
+
+      for (var value of iter2) {
+        yield value
+      }
+    }
+
+    function* gen() {
+      yield* ["a","b","c"]
+    }
+
+    gen().next() //{value:"a",done}
+
+    function* foo() {
+      yield 2;
+      yield 3;
+      return "foo"
+    }
+
+    function* bar() {
+      yield 1;
+      var v = yield* foo();
+      console.log("v:" + v);
+      yield 4;
+    }
+
+    var it = bar();
+    it.next()
+    it.next()
+    it.next()
+    it.next()
+    it.next()
+
+    function* genFuncWithReturn() {
+      yield 'a';
+      yield 'b';
+      return 'The result';
+    }
+
+    function* logReturned(genObj) {
+      let result = yield* genObj;
+      console.log(result)
+    }
+    [...logReturned(genFuncWithReturn())]
+    //The result
+    //值为['a','b']
+
+    //yield* 取出嵌套数组的所有成员
+    function* iterTree(tree) {
+      if (Array.isArray(tree)) {
+        for (let i = 0; i < tree.length;i++) {
+          yield* iterTree(tree[i])
+        }
+      } else {
+        yield tree
+      }
+    }
+
+    const tree = ['a',['b','c'],['d','e']]
+    for (let x of iterTree(tree)) {
+      console.log(x)
+    }
+    //a
+    //b
+    //c
+    //d
+    //e
+
+    [...iterTree(tree)] // ["a","b","c","d","e"]
+
+    //yield*语句遍历完全二叉树
+    //三个参数分别是左树、当前节点和右树
+    function Tree(left,label,right) {
+      this.left = left
+      this.label = label
+      this.right = right
+    }
+    //中序(inorder)遍历函数
+    //由于返回的是一个遍历器，所以要用generator函数
+    //函数体内采用递归算法，所以左树和右树要用yield*遍历
+    function* inorder(t) {
+      if (t) {
+        yield* inorder(t.left) 
+        yield t.label
+        yield* inorder(t.right)
+      }
+    }
+
+    //二叉树
+    function make(array) {
+      if (array.length == 1) return new Tree(null,array[0],null)
+      return new Tree(make(array[0]),array[1],make(array[2]))
+    }
+    let tree = make([[['a'], 'b', ['c']], 'd', [['e'], 'f', ['g']]])
+
+    //遍历二叉树
+    var result = []
+    for (let node of inorder(tree)) {
+      result.push(node)
+    }
+    result //['a','b','c','d','e','f','g']
+
+    //8.作为对象属性的Generator函数
+    let obj = {
+      * myGeneratorMethod() {
+
+      }
+    }
+    //or 
+    let obj = {
+      myGeneratorMethod: function* () {
+
+      }
+    }
+
+    //9.Generator函数的this
+    function* g() {}
+    g.prototype.hello = function () {
+      return 'hi!'
+    }
+
+    let obj = g()
+    obj instanceof g //true
+    obj.hello()  //'hi!'
+
+    //Generator函数返回的总是遍历对象,而不是this对象
+    function* g() {
+      this.a = 11
+    }
+    let obj = g()
+    obj.next()
+    obj.a //undefined
+    //Generator函数不能和new命令一起用
+    function* F() {
+      yield this.x = 2
+      yield this.y = 3
+    }
+    new F() //F is not constructor
+
+    //将Generator函数返回一个正常的对象实例,既可以用next方法,y又可以获得正常的this
+    function* F() {
+      this.a = 1
+      yield this.b = 2
+      yield this.c = 3
+    }
+
+    var obj = {}
+    var f = F.call(obj)
+    f.next() //{value:2,done:false}
+    f.next() //{value:3,done:false}
+    f.next() //{value:undefined,done:true}
+    obj.a // 1
+    obj.b // 2
+    obj.c // 3
+    //将obj对象和f对象统一
+    var f = F.call(F.prototype)
+    f.next() //{value:2,done:false}
+    f.next() //{value:3,done:false}
+    f.next() //{value:undefined,done:true}
+
+    f.a //1
+    f.b //2
+    f.c //3
+
+    //将F改成构造函数,就可以对其执行new命令
+    function* gen() {
+      this.a = 1
+      yield this.b = 2
+      yield this.c = 3
+    }
+
+    function F() {
+      return gen.call(gen.prototype)
+    }
+    
+    var f = new F()
+
+    f.next() //{value:2,done:false}
+    f.next() //{value:3,done:false}
+    f.next() //{value:undefined,done:true}
+
+    f.a //1
+    f.b //2
+    f.c //3
+
+    //10.含义
+    //1.Generator与状态机
+    var ticking = true
+    var clock = function() {
+      if (ticking) {
+        console.log('Tick!')
+      } else {
+        console.log('Tock!')
+      }
+      ticking = !ticking
+    }
+    //2.Generators实现
+    var clock = function* () {
+      while (true) {
+        console.log('Tick!')
+        yield
+        console.log('Tock')
+        yield
+      }
+    }
+
+
+    //11.应用
+    //1.异步操作的同步化表达
+    function* loadUI() {
+      showLoadingScreen()
+      yield loadUIDataAsynchronously()
+      hideLoadingScreen()
+    }
+
+    var loader = loadUI()
+    //加载UI
+    loader.next()
+    //卸载UI
+    loader.next()
+
+    //Ajax操作
+    function* main() {
+      var result = yield request("http://some.url")
+      var resp = JSON.parse(result)
+      console.log(resp.value)
+    }
+    function request(url) {
+      makeAjaxCall(url, function(response){
+        it.next(response);
+      });
+    }
+
+    var it = main();
+    it.next();
+
+    //2.控制流管理
+    Promise.resolve(step1)
+      .then(step2)
+      .then(step3)
+      .then(step4)
+      .then(value4 => {
+        //Do something with value4
+      },error => {
+        //Handle any error from step1 through step4
+      }) 
+      .done()
+    
+    function* longRunningTask(value1) {
+      try {
+        var value2 = yield step1(value1)
+        var value3 = yield step1(value2)
+        var value4 = yield step1(value3)
+        var value5 = yield step1(value4)
+      } catch (e) {
+
+      }
+    }
+
+    function scheduler(task) {
+      var taskObj = task.next(task.value)
+      if (!taskObj.done) {
+        task.value = taskObj.value
+        scheduler(task)
+      }
+    }
+    scheduler(longRunningTask(initialValue))
+
+    //3.部署Iterator接口
+    function* iterEntries(obj) {
+      let keys = Object.keys(obj)
+      for (let i=0; i < keys.length; i++) {
+        let key = keys[i]
+        yield [key,obj[key]]
+      }
+    }
+    let myObj = { foo:3, bar: 7 }
+    for (let [key,value] of iterEntries(myObj)) {
+      console.log(key,value)
+    }
+
+    //Generator函数的异步应用
+    //1.传统异步编程的方法：回调函数、事件监听、发布/订阅、Promise对象
+    //异步的基本概念：程序的不连续的执行，就叫做异步
+
+    //1.回调函数
+    fs.readFile('/etc/passwd','utf-8',function (err,data) {
+      if (err) throw err;
+      console.log(data)
+    })
+    //任务第一段获取文件，回调函数就是任务第二段
+    //多个回调函数嵌套称为"回调嵌套"(callback hell)
+
+    //Promise对象就是为了解决回调嵌套问题而提出的。它不是新的语法功能，而是一种新的写法，允许将回调函数的嵌套，改用链式调用
+    var readFile = require('fs-readfile-promise')
+    readFile(fileA)
+    .then(data => {
+      console.log(data.toString())
+    }).then(function () {
+      return readFile(fileB)
+    }).then(function (data) {
+      console.log(data.toString())
+    }).catch(err => {
+      console.log(err)
+    })
+
+    //3.Generator函数解决Promise链式问题
+    //协程(coroutine),多个线程互相协作，完成异步任务
+    //1.协程A开始执行
+    //2.协程A执行到一半，进入暂停，执行权转移到协程B
+    //3.协程B交执行权
+    //4.协程A恢复执行
+    function* asyncJob() {
+      //...其他代码
+      var f = yield readFile(fileA)
+      //...其他代码
+    }
+
+    //协程的Generator函数实现
+    function* gen(x) {
+      var y = yield x + 2
+      return y
+    }
+    var g = gen(1)
+    g.next() // {value:3,done:false}
+    g.next() // {value:undefined,done:true}
+
+    //Generator函数的数据交换和错误处理
+    //Generator函数可以暂停执行和恢复执行，这是它能封装异步任务的根本原因
+    //使它可以作为异步编程的完整解决方案：函数体内外的数据交换和错误处理机制
+    //next返回的value属性，是Generator函数向外输出数据;next方法还可以接受参数，向Generator函数体内输入数据
+    function* gen(x) {
+      var y = yield x + 2;
+      return y
+    }
+
+    var g = gen(1)
+    g.next()  // {value:3,done:false}
+    g.next(2) // {value:2,done:true}
+    
+    function* gen(x) {
+      try {
+        var y = yield x + 2
+      } catch (e) {
+        console.log(e)
+      }
+      return y
+    }
+    var g = gen(1)
+    g.next()
+    g.throw('出错了')
+
+    //异步任务的封装
+    var fetch = require('node-fetch')
+
+    function* gen() {
+      var url = 'http://api.github.com/users/github'
+      var result = yield fetch(url)
+      console.log(result.bio)
+    }
+
+    var g = gen()
+    var result = g.next()
+
+    result.value.then(data => {
+      return data.json()
+    }).then(data => {
+      g.next(data)
+    })
+
+    //4.Thunk函数：自动执行Generator函数的一种方法;传名调用
+    function f(m) {
+      return m * 2
+    }
+
+    f(x + 5)
+
+    var thunk = function () {
+      return x + 5
+    }
+
+    function f(thunk) {
+      return thunk() * 2
+    }
+
+    //在JavaScript语言中,Thunk函数替换的不是表达式，而是多参数函数
+    //正常版本的readFile(多参数版本)
+    fs.readFile(fileName,callback)
+
+    //Thunk版本的readFile(单参数版本)
+    var Thunk = function (fileName) {
+      return function (callback) {
+        return fs.readFile(fileName,callback)
+      }
+    }
+
+    var readFileThunk = Thunk(fileName)
+    readFileThunk(callback)
+
+    //ES5版本 Thunk
+    var Thunk = function(fn) {
+      return function () {
+        var args =  Array.prototype.slice.call(arguments)
+        return function (callback) {
+          args.push(callback)
+          return fn.apply(this,args)
+        }
+      }
+    }
+
+    //ES6版本 Thunk
+    const Thunk = function(fn) {
+      return function (...args) {
+        return function (callback) {
+          return fn.call(this,...args,callback)
+        }
+      }
+    }
+
+    var readFileThunk = Thunk(fs.readFile)
+    readFileThunk(fileA)(callback)
+
+    function f(a,cb) {
+      cb(a)
+    }
+    const ft = Thunk(f) 
+    ft(1)(console.log) //1
+
+    //thunkify()
+    function thunkify(fn) {
+      return function() {
+        var args = new Array(arguments.length)
+        var ctx = this
+
+        for (var i = 0; i < args.length; ++i) {
+          args[i] = arguments[i]
+        }
+
+        return function (done) {
+          var called
+
+          args.push(function() {
+            if (called) return
+            called = true;
+            done.apply(null,arguments)
+          })
+
+          try {
+            fn.apply(ctx,args)
+          } catch (err) {
+            done(err)
+          }
+        }
+        }
+      }
+
+      function f(a,b,callback) {
+        var sum = a + b
+        callback(sum)
+        callback(sum)
+      }
+
+      var ft = thunkify(f)
+      var print = console.log.bind(console)
+      ft(1,2)(print)
+
+      //Generator函数的流程管理
+      function* gen() {
+        //...
+      }
+
+      var g = gen()
+      var res = g.next()
+
+      while(!res.done) {
+        console.log(res.value)
+        res = g.next()
+      }
+
+      var fs = require('fs')
+      var thunkify = require('thunkify')
+      var readFileThunk = thunkify(fs.readFile)
+
+      var gen = function* () {
+        var r1 = yield readFileThunk('/etc/fstab')
+        console.log(r1.toString())
+        var r2 = yield readFileThunk('/etc/shells')
+        console.log(r2.toString())
+      }
+
+      var g = gen()
+      var r1 = g.next()
+      r1.value(function(err,data) {
+        if (err) throw err
+        var r2 = g.next(data)
+        r2.value(function(err,data) {
+          if (err) throw err
+          g.next(data)
+        })
+      })
+
+      //generator自动执行器
+      function run(fn) {
+        var gen = fn()
+
+        function next(err,data) {
+          var result = gen.next(data)
+          if (result.done) return
+          result.value(next)
+        }
+
+        next()
+      }
+
+      function* g() {
+        // ...
+      }
+
+      run(g)
+
+      var g = function* () {
+        var f1 = yield readFileThunk('fileA')
+        var f2 = yield readFileThunk('fileB')
+        //...
+        var fn = yield readFileThunk('fileN')
+      }
+
+      run(g)
+
+      //Co模块 用于Generator函数的自动执行
+      var gen = function* () {
+        var f1 = yield readFile('/etc/fstab')
+        var f2 = yield readFile('/etc/shells')
+      }
+
+      var co = require('co')
+      co(gen)
+
+      co(gen).then(() => {
+        console.log('Generator函数执行完毕')
+      })
+
+      //co模块将两种自动执行器(Thunk函数和Promise对象)，包装成一个模块
+      //1.基于Promise对象的自动执行
+      var fs = require('fs')
+
+      var readFile = function (fileName) {
+        return new Promise(function(resolve,reject) {
+          fs.readFile(fileName,function(error,data) {
+            if (error) return reject(error)
+            resolve(data)
+          })
+        })
+      }
+
+      var gen = function* () {
+        var f1 = yield readFile('/etc/fstab')
+        var f2 = yield readFile('/etc/shells')
+      }
+
+      var g = gen()
+      g.next().value.then(function(data) {
+        g.next(data).value.then(function(data){
+          g.next(data)
+        })
+      })
+
+      //理解以上层层添加回调函数,写出一个自动执行器
+      function run(gen) {
+        var g = gen()
+        function next(data) {
+          var result = g.next(data)
+          if (result.done) return result.value
+          result.value.then(function(data){
+            next(data)
+          })
+        }
+
+        next()
+      }
+
+      run(gen)
+
+      //co支持并发的异步操作,即允许某些操作同时进行，等到他们全部完成，才进行下一步
+      //数组的写法
+      co(function* () {
+        var res = yield [
+          Promise.resolve(1),
+          Promise.resolve(2)
+        ]
+        console.log(res)
+      }).catch(onerror)
+
+      //对象的写法
+      co(function* () {
+        var res = yield {
+          1: Promise.resolve(1),
+          2: Promise.resolve(2)
+        }
+      }).catch(onerror)
+
+      co(function* () {
+        var values = [n1,n2,n3]
+        yield values.map(somthingAsync)
+      })
+
+      function* somthingAsync(x) {
+        //do something async
+        return y
+      }
+
+      //处理Stream
+      const co = require('co')
+      const fs = require('fs')
+
+      const stream = fs.createReadStream('./les_miserables.txt')
+
+      let valjeanCount = 0
+
+      co(function*() {
+        while(true) {
+          const res = yield Promise.race([
+            new Promise(resolve => stream.once('data',resolve)),
+            new Promise(resolve => stream.once('end',resolve)),
+            new Promise((resolve,reject) => stream.once('error',reject))
+          ])
+
+          if (!res) {
+            break
+          }
+
+          stream.removeAllListeners('data')
+          stream.removeAllListeners('end')
+          stream.removeAllListeners('error')
+          valjeanCount += (res.toString().match(/valjean/ig) || []).length
+        }
+        console.log('count',valjeanCount)
+      })
+
+      //async函数
+      //1.含义:是Generator函数的语法糖
+      //Generator函数的写法
+      const fs = require('fs')
+
+      const readFile = function (fileName) {
+        return new Promise(function(resolve,reject) {
+          fs.readFile(fileName,function(error,data) {
+            if (error) return reject(error)
+            resolve(data)
+          })
+        })
+      }
+
+      const gen = function* () {
+        const f1 = yield readFile('/etc/fstab')
+        const f2 = yield readFile('/etc/shells')
+      }
+
+      //gen函数可以写成async函数
+      const asyncReadFile = async function () {
+        const f1 = await readFile('/etc/fstab')
+        const f2 = await readFile('/etc/shells')
+      }
+      //async函数就是将Generator函数的星号(*)替换成async，yield替换成await
+      //async的改进：1、内置执行器 2、更好的语义 3、更广的适用性 4、返回值是Promise
+      //2.基本用法
+      async function getStockPriceByName(name) {
+        const symbol = await getStockSymbol(name)
+        const stockPrice = await getStockPrice(symbol)
+        return stockPrice
+      }
+      getStockPriceByName('goog').then(function (result) {
+        console.log(result)
+      })
+
+      function timeout(ms) {
+        return new Promise((resolve) => {
+          setTimeout(resolve,ms)
+        })
+      }
+
+      async function asyncPrint(value,ms) {
+        await timeout(ms)
+        console.log(value)
+      }
+
+      asyncPrint('hello world',50)
+
+      //3.语法
+      //4.实现原理
+      //将Generator函数和自动执行器包装在一个函数里面
+      async function fn(args) {
+        //...
+      }
+      function fn(args) {
+        //spawn函数为自动执行器
+        return spawn(function* (){
+          //...
+        })
+      }
+      //spawn函数的实现
+      function spawn(genF){
+        return new Promise(function(resolve,reject) {
+          const gen = genF()
+          function step(nextF) {
+            let next;
+            try {
+              next = nextF()
+            } catch(e) {
+              return reject(e)
+            }
+
+            if (next.done) {
+              return resolve(next.value)
+            }
+            
+            Promise.resolve(next.value).then(function(v) {
+              step(function() { return gen.next(v)})
+            },function(e) {
+              step(function() { return gen.next(e)})
+            })
+          }
+          step(function() { return gen.next(undefined)})
+        })
+      }
+      //5.与其他异步处理方法的比较
+      //1.Promise的异常处理方法
+      function chainAnimationsPromise(elem,animations) {
+        //保存上个动画的返回值
+        let ret = null
+
+        //新建一个空的Promise
+        let p = Promise.resolve()
+
+        //使用then方法，添加所有动画
+        for (let anim of animations) {
+          p = p.then(function(val) {
+            ret = val
+            return anim(elem) 
+          })
+        }
+
+        //返回一个部署了错误捕捉机制的Promise
+        return p.catch(function(e) {
+          // 忽略错误，继续执行
+        }).then(function() {
+          return ret
+        })
+      }
+
+      //2.Generator函数的写法
+      function chainAnimationsGenerator(elem,animations) {
+        return spawn(function*() {
+          let ret = null
+          try {
+            for (let anim of animations) {
+              ret = yield anim(elem)
+            }
+          } catch (e) {
+
+          }
+        })
+        return ret
+      }
+
+      //3.async函数的写法:Async函数的实现最为简洁，最符合语义
+      async function chainAnimationAsync(elem,animations) {
+        let ret = null
+        try {
+          for (let anim of animations) {
+            ret = await anim(elem)
+          }
+        } catch (e) {
+          // 忽略错误，继续执行
+        }
+        return ret
+      } 
+
+      //6.实例：按顺序完成异步操作
+      //依次远程读取一组URL,然后按照读取的顺序输出结果
+      //Promise的写法
+      function logInOrder(urls) {
+        //远程读取所有URL
+        const textPromises = urls.map(url => {
+          return fetch(url).then(response => response.text())
+        })
+
+        //按次序输出
+        textPromises.reduce((chain,textPromise) => {
+          return chain.then(() => textPromise)
+            .then(text => console.log(text))
+        },Promise.resolve())
+      }
+      //async的写法
+      async function logInOrder(urls) {
+        for (const url of urls) {
+          const response = await fetch(url)
+          console.log(await response.text())
+        }
+      }
+
+      async function logInOrder(urls) {
+        //并发读取远程URL
+        const textPromises = urls.map(async url => {
+          const response = await fetch(url)
+          return response.text()
+        })
+
+        for (const textPromise of textPromises) {
+          console.log(await textPromise)
+        }
+      }
+      //7.顶层await
+      //顶层await加载场景
+      const strings = await import(`/i18n/${navigator.language}`)
+
+      // 数据库操作
+      const connection = await dbConnector()
+
+      //依赖回滚
+      let jQuery
+      try {
+        jQuery = await import('https://cdn-a.com/jQuery')
+      } catch {
+        jQuery = await import('https://cdn-b.com/jQuery')
+      }
+
+      //x.js
+      console.log("X1")
+      await new Promise(r => setTimeout(r,1000))
+      console.log("X2")
+
+      //y.js
+      console.log("Y")
+
+      //z.js
+      import "./x.js"
+      import "./y.js"
+      console.log("Z")
+
+      //输出
+      // X1 Y X2 Z
+
+      //Class的基本语法
+      //1.简介
+      //传统生成对象实例的方法：通过构造函数
+      function Point(x,y) {
+        this.x = x
+        this.y = y
+      }
+
+      Point.prototype.toString = function () {
+        return '(' + this.x + ',' + this.y + ')'
+      }
+
+      var p = new Point(1,2)
+
+      //ES6的Class可以当作一个语法糖,ES6的语法
+      class Point {
+        constructor(x,y) {
+          this.x = x
+          this.y = y
+        }
+
+        toString() {
+          return '(' + this.x + ',' + this.y + ')'
+        }
+      }
+      //类所有的方法都定义在类的prototype的属性上面
+      class Point  {
+        constructor() {
+
+        }
+
+        toString() {
+
+        }
+
+        toValue() {
+
+        }
+      }
+
+      //等同于
+      Point.prototype = {
+        constructor() {},
+        toString() {},
+        toValue() {}
+      }
+
+      class B {}
+      const b = new B()
+
+      b.constructor === B.prototype.constructor //true
+      
+      //Object.assign()方法可以一次性向类添加多个方法
+      class Point {
+        constructor () {
+
+        }
+      }
+
+      Object.assign(Point.prototype,{
+        toString(){},
+        toValue(){}
+      })
+
+      Point.prototype.constructor === Point //true
+
+      //类内部所有定义的方法都是不可枚举的(non-enumerable)
+      class Point {
+        constructor(x,y) {
+
+        }
+
+        toString() {
+
+        }
+      }
+      Object.keys(Point.prototype) // []
+      Object.getOwnPropertyNames(Point.prototype) // ['constructor','toString']
+      
+      //ES6与ES5行为是不一致的
+      var Point = function (x,y) {
+
+      }
+      Point.prototype.toString = function () {
+
+      }
+      //constructor方法是类的默认方法，通过new命令生成对象实例，自动调用该方法
+      //类的实例
+      class Point {
+        constructor (x,y) {
+          this.x = x
+          this.y = y
+        }
+
+        toString () {
+          return '(' + this.x + ',' + this.y + ')'
+        }
+      }
+
+      var point = new Point(2,3)
+      point.toString() //(2,3)
+      point.hasOwnProperty('x') //true
+      point.hasOwnProperty('y') //true
+      point.hasOwnProperty('toString') //false
+      point.__proto__.hasOwnProperty('toString') //true
+
+      var p1 = new Point(2,3)
+      var p2 = new Point(3,2)
+      p1.__proto__ === p2.__proto__ //true
+
+      //取值函数(getter)和存值函数(setter)
+      //可以使用get和set关键字对某个属性设置存值函数和取值函数，拦截该属性的存取行为
+      class MyClass {
+        constructor() {
+
+        }
+
+        get prop() {
+          return 'getter'
+        }
+
+        set prop(value) {
+          console.log('setter:'+ value)
+        }
+      }
+      let inst = new MyClass() 
+      inst.prop = 123
+      //setter:123
+      inst.prop
+      //'getter'
+
+      //属性表达式
+      let methodName = 'getArea'
+      class Square {
+        constructor(length) {
+
+        }
+        [methodName]() {
+
+        }
+      }
+
+      //Class表达式
+      const MyClass = class Me {
+        getClassName() {
+          return Me.name
+        }
+      }
+
+      let inst = new MyClass()
+      inst.getClassName()
+
+      const MyClass = class {
+        //...
+      }
+
+      //采用Class表达式，可以写出立即执行的Class
+      let person = new class {
+        constructor(name) {
+          this.name = name
+        }
+
+        sayName() {
+          console.log(this.name)
+        }
+      }("张三")
+      person.sayName() //张三
+      //严格模式：类和模块的内部，默认严格模式
+      //不存在变量提升
+      //name属性
+      //Generator方法 *
+      class Foo {
+        constructor(...args) {
+          this.args = args
+        }
+        * [Symbol.iterator]() {
+          for (let arg of this.args) {
+            yield arg
+          }
+        }
+      }
+
+      for (let x of new Foo('hello','world')) {
+        console.log(x)
+      }
+      //hello
+      //world
+      //this的指向,默认指向类的实例
+      class Logger {
+        printName (name = 'there') {
+          this.print(`Hello ${name}`)
+        }
+
+        print(text) {
+          console.log(text)
+        }
+      }
+
+      const logger = new Logger()
+      const { printName } = logger
+      printName()  //TypeError:Cannot read property 'print' of undefined
+      //构造函数函数绑定this
+      class Logger {
+        constructor() {
+          this.printName = this.printName.bind(this)
+        }
+      }
+
+      //箭头函数:内部的this总是指向定义时所在的对象
+      class Obj {
+        constructor() {
+          this.getThis = () => this
+        }
+      }
+      const myObj = new Obj()
+      myObj.getThis() === myObj //true
+      
+      //2.静态方法：只能通过类来调用
+      class Foo {
+        static classMethod() {
+          return 'hello'
+        }
+      }
+
+      Foo.classMethod()  //'hello'
+
+      var foo = new Foo()
+      foo.classMethod() //TypeError: foo.classMethod is not a function
+      //如果静态方法包含this关键字,这个this指的是类,而不是实例,静态方法与非静态方法可以重名
+      class Foo {
+        static bar() {
+          this.baz()
+        }
+        static baz() {
+          console.log('hello')
+        }
+        baz() {
+          console.log('world')
+        }
+      }
+      Foo.bar() //hello
+
+      //父类的静态方法，可以被子类继承
+      class Foo {
+        static classMethod() {
+          return 'hello'
+        }
+      }
+
+      class Bar extends Foo {
+
+      }
+      Bar.classMethod() //hello
+
+      //static也可以使用super
+      class Foo {
+        static classMethod() {
+          return 'hello'
+        }
+      }
+
+      class Bar extends Foo {
+        static classMethod() {
+          return super.classMethod() + ',too'
+        }
+      }
+      Bar.classMethod() //hello,too
+      //3.实例属性的新写法
+      class IncreasingCounter {
+        constructor() {
+          this._count = 0
+        }
+
+        get value() {
+          console.log('Getting the current value!')
+          return this._count
+        }
+
+        increment() {
+          this._count++
+        }
+      }
+
+      class IncreasingCounter {
+        _count = 0
+        get value() {
+          console.log('Getting the current value')
+          return this._count
+        }
+        increment() {
+          this._count++
+        }
+      }
+      //静态属性:Class本身的属性,class.proName
+      class Foo {
+        
+      }
+      Foo.prop = 1
+      Foo.prop // 1
+      //或者
+      class Foo {
+        static prop = 1
+      }
+      //5.私有方法和私有属性
+      //私有方法与共有方法 在命名上加以区别
+      class Widget {
+        //共有方法
+        foo (baz) {
+          this._bar(baz)
+        }
+        //私有方法
+        _bar(baz) {
+          return this.snaf = baz
+        }
+      }
+
+      class Widget {
+        foo (baz) {
+          bar.call(this,baz)
+        }
+      }
+
+      function bar(baz) {
+        return this.snaf = baz
+      }
+      //6.静态块
+      //7.new.target属性
+
+      //第一种写法
+      function Person(name) {
+        if (new.target !== undefined) {
+          this.name = name
+        } else {
+          throw new Error('必须使用new命令生成实例！')
+        }
+      }
+
+      //另一种写法
+      function Person(name) {
+        if (new.target === Person) {
+          this.name = name
+        } else {
+          throw new Error('必须使用new命令生成实例！')
+        }
+      }
+
+      var person = new Person('张三')
+      var notPerson = Person.call(person,'张三') //报错
+
+      //不能独立使用，必须继承后才能使用的类
+      class Shape {
+        constructor() {
+          if(new.target === Shape) {
+            throw new Error('本类不能实例化')
+          }
+        }
+      }
+
+      class Rectangle extends Shape {
+        constructor(length,width) {
+          super()
+        }
+      }
+
+      var x = new Shape() //报错
+      var y = new Rectangle(3,4) //正确
+
+      //1.简介
+      //ES6可以使用extends关键字实现继承
+      class Point {
+
+      }
+
+      class ColorPoint extends Point {
+        constructor(x,y,color) {
+          super(x,y) //调用父类的constructor(x,y)
+          this.color = color
+        }
+
+        toString() {
+          return this.color + ' ' + super.toString() //调用父类的toString()
+        }
+      }
+
+      //在子类的构造函数中，只有调用super之后,才可以使用this关键字,否则会报错
+      class Point {
+        constructor(x,y) {
+          this.x = x
+          this.y = y
+        }
+      }
+
+      class ColorPoint extends Point {
+        constructor(x,y,color) {
+          this.color = color //ReferenceError
+          super(x,y)
+          this.color = color //正确
+        }
+      }
+
+      let cp = new ColorPoint(25,8,'green')
+      cp instanceof ColorPoint //true
+      cp instanceof Point //true
+      //父类的静态方法，也会被子类继承
+      class A {
+        static hello() {
+          console.log('hello world')
+        }
+      }
+
+      class B {
+
+      }
+      B.hello() //hello world
+      
+      //2.Object.getPrototypeOf():从子类获取父类
+      Object.getPrototypeOf(ColorPoint) === Point
+      
+      //3.super关键字:可当作函数看，也可以当作对象使用;super()只能用在子类的构造函数之中
+      class A {
+        constructor() {
+          console.log(new.target.name)
+        }
+      }
+      class B extends A {
+        constructor() {
+          super()
+        }
+      }
+
+      new A() //A
+      new B() //B
+
+      //super作为对象时，在普通方法中，指向父类的原型对象;在静态方法中，指向父类
+      class A {
+        constructor() {
+          this.b = 2
+          this.y = 1
+        }
+        p() {
+          return 2
+        }
+        print() {
+          console.log(this.y)
+        }
+      }
+
+      A.prototype.x = 2
+
+      class B extends A {
+        constructor() {
+          super()
+          this.y = 2
+          console.log(super.p()) //2
+          console.log(super.x) //2
+        }
+
+        get m() {
+          return super.b
+        }
+
+        p() {
+          super.print()
+        }
+      }
+
+      let b = new B()
+      b.m //undefined  由于b是父类A实例的属性,super.p就引用不到它
+      b.p() // 2 普通函数中函数this指向子类B的实例
+
+      //在静态方法中,这是super将指向父类,而不是父类的原型对象
+      class Parent {
+        constructor() {
+          this.x = 1
+        }
+
+        static print() {
+          console.log(this.x)
+        }
+
+        static myMethod(msg) {
+          console.log('static',msg)
+        }
+
+        myMethod(msg) {
+          console.log('instance',msg)
+        }
+      }
+
+      class Child extends Parent {
+        constructor() {
+          super()
+          this.x = 2 
+        }
+
+        static m() {
+          //this 指向当前类
+          super.print()
+        }
+
+        static myMethod(msg) {
+          //this 指向当前类
+          super.myMethod(msg) 
+        }
+
+        myMethod(msg) {
+          super.myMethod(msg) 
+        }
+      }
+
+      Child.x = 3
+      B.m() //3
+      Child.myMethod(1) //'static' 1
+      var child = new Child()
+      child.myMethod(2) //'instance' 2
+
+      var obj = {
+        toString() {
+          return "MyObject: " + super.toString()
+        }
+      }
+
+      obj.toString() //MyObject: [object Object]
+      //4.类的prototype属性和__proto__属性
+      //1.ES5每个对象都有__proto__属性，指向对应的构造函数的prototype属性
+      //2.Class作为构造函数的语法糖，同时有prototype属性和__proto__属性,同时存在两条继承链
+      //子类的__proto__属性，表示构造函数的继承，总是指向父类
+      //子类的prototype属性的__proto__属性,表示方法的继承，总是指向父类的prototype属性
+      class A {
+
+      }
+      class B extends A {
+
+      }
+      B.__proto__ === A //true
+      B.prototype.__proto__ === A.prototype //true
+
+      //为什么会产生如此的继承结果？
+      class A {
+
+      }
+
+      class B {
+        
+      }
+
+      //B的实例继承A的实例
+      Object.setPrototypeOf(B.prototype,A.prototype)
+      //这个实际就是
+      B.prototype.__proto__ = A.prototype
+
+      B.prototype = Object.create(A.prototype)
+      //等同于
+      B.prototype.__proto__ = A.prototype
+      //B继承A的静态属性
+      Object.setPrototypeOf(B,A)
+      //这个实际就是
+      B.__proto__ = A
+      const b = new B()
+      Object.setPrototypeOf = function (obj,proto) {
+        obj.__proto__ = proto
+        return true
+      }
+      //5.原生构造函数的继承
+      //6.Mixin模式的实现
+  </script>
+</body>
+</html>  
