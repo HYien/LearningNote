@@ -1658,8 +1658,1697 @@
         obj.__proto__ = proto
         return true
       }
+      //第一种：子类继承Object类
+      class A extends Object {
+
+      }
+      A.__proto__ === Object //true
+      A.prototype.__proto__ === Object.prototype //true
+
+      //第二种：不存在任何继承
+      class A {
+
+      }
+      A.__proto__ === Function.prototype //true
+      A.prototype.__proto__ === Object.prototype //true
+
+      //实例的__proto__属性
+      var p1 = new Point(2,3)
+      var p2 = new ColorPoint(2,3,'red')
+      p2.__proto__ === p1.__proto__ //false
+      p1.__proto__ === Point //true
+      p2.__proto__ === ColorPoint //true
+      p2.__proto__.__proto__ === p1.__proto__ //true
+      //同等与
+      ColorPoint.__proto__ = Point
       //5.原生构造函数的继承
+      //ECMAScript的原生构造函数大致有下面这些
+      Boolean()
+      Number()
+      String()
+      Array()
+      Date()
+      Function()
+      RegExp()
+      Error()
+      Object()
+      //原来ES5不允许继承原生构造函数定义子类
+      //ES6允许继承原生构造函数定义子类
+      class MyArray extends Array {
+        constructor(...args) {
+          super(...args)
+        }
+      }
+
+      var arr = new MyArray()
+      arr[0] = 12
+      arr.length //1
+      arr.length = 0
+      arr[0] //undefined
+
+      //extends关键字不仅可以用来继承类,还可以用来继承原生的构造函数
+      class VersionedArray extends Array {
+        constructor() {
+          super()
+          this.history = [[]]
+        }
+        commit() {
+          this.history.push(this.slice)
+        }
+
+        revert() {
+          this.splice(0, this.length, ...this.history[this.history.length - 1]);
+        }
+      }
+
+      var x = new VersionedArray()
+      x.push(1)
+      x.push(2)
+      x // [1,2]
+      x.history // [[]]
+      x.commit()  
+      x.history //[[],[1,2]]
+      x.push(3)
+      x // [1,2,3]
+      x.history // [[],[1,2]]
+
+      x.revert()
+      x //[1,2]
+
+      //下面自定义Error子类的例子，可以以用来定制报错时的行为
+      class ExtendableError extends Error {
+        constructor(message) {
+          super()
+          this.message = message
+          this.stack = (new Error()).stack
+          this.name = this.constructor.name
+        }
+      }
+
+      class MyError extends ExtendableError {
+        constructor(m) {
+          super(m)
+        }
+      }
+
+      var myerror = new MyError('11')
+      myerror.message //11
+      myerror instanceof Error //11
+      myerror.name // 'MyError'
+      myerror.stack 
       //6.Mixin模式的实现
+      //Mixin指的是多个对象合成一个新的对象，新对象具有各个组成成员的接口
+      //1.最简单的实现如下：
+      const a = {
+        a: 'a'
+      }
+
+      const b = {
+        b: 'b'
+      }
+
+      const c = { ...a, ...b } // {a: 'a',b: 'b'}
+
+      //2.更完备的实现，将多个类的接口“混入”另一个类
+      function mix(...mixins) {
+        class Mix {
+          constructor() {
+            for (let mixin of mixins) {
+              copyProperties(this,new mixin()) //拷贝实例属性
+            }
+          }
+        }
+
+        for (let mixin of mixins) {
+          copyProperties(Mix,mixin); //拷贝静态属性
+          copyProperties(Mix.prototype,mixin.prototype); //拷贝原型属性
+        }
+
+        return Mix
+      }
+
+      function copyProperties(target,source) {
+        for (let key of Reflect.ownKeys(source)) {
+          if (key !== 'constructior' 
+            && key !== 'prototype'
+            && key !== 'name' 
+          ) {
+            let desc = Object.getOwnPropertyDescriptor(source,key)
+            Object.defineProperties(target,key,desc)
+          }
+        }
+      }
+
+      //Module的语法
+      //1.概述
+      //在ES6之前加载模块的方案:CommonJS(用于服务器)和AMD(用于浏览器)两种
+      //CommonJS和AMD模块只能在运行时才能确定模块的依赖关系
+      //CommonJS模块就是对象
+      let { stat, exists, readfile } = require('fs')
+      //等同于
+      let _fs = require('fs')
+      let stat = _fs.stat
+      let exists = _fs.exists
+      let readfile = _fs.readfile
+
+      //ES6模块不是对象，而是通过export命令显示指定输出的代码，再通过import命令输入
+      import { stat, exists, readFile } from 'fs'
+      //编译时就完成模块加载、效率比CommonJS模块的加载方式高
+      //2.严格模式
+      //ES6的模块自动采用严格模式，不管你有没有在模块头部加上"use strict"
+
+      //3.export命令
+      //模块功能主要由两个命令构成:export和import
+      //1.export命令用于规定模块的对外接口
+      //2.import命令用于输入其他模块提供的功能
+      //profile.js
+      export var firstName = 'Michael'
+      export var lastName = 'Jackson'
+      export var year = 1958
+      
+      //或者
+      var firstName = 'Michael'
+      var lastName = 'Michael'
+      var year = 1958
+
+      export { firstName,lastName,year}
+      //4.import命令
+      //使用export命令定义了模块的对外接口,其他JS文件就可以通过import命令加载这个模块
+      //main.js
+      import { firstName, lastName, year } from './profile.js'
+      
+      function setName (element) {
+        element.textContent = firstName + ' ' + lastName
+      }
+
+      //如果想为输入的变量重新取一个名字,import命令要使用as关键字,将输入的变量重命名
+      import { lastName as surname } from './profile.js'
+
+      //import命令具有提升效果，会提升到整个模块的头部，首先执行
+      foo()
+
+      import { foo } from 'my_module'
+      //由于import是静态执行，所以不能使用表达式和变量
+      //报错
+      import { 'f' + 'oo'} from 'my_module'
+
+      //报错
+      import module = 'my_module'
+      import { foo } from module
+      //CommonJS模块的require命令和ES6模块的import命令,可以写在同一个模块里面,但最好不要这样做
+
+      //5.模块的整体加载
+      //整体加载：即用星号(*)指定一个对象,所有输出值都加载在这个对象中
+      //circle.js
+      export function area(radius) {
+        return Math.PI * radius * radius
+      }
+
+      export function circumference(radius) {
+        return 2 * Math.PI * radius
+      }
+
+      //main.js
+      import { area,circumference } from './circle'
+      console.log('圆面积：' + area(4))
+      console.log('圆周长：' + circumference(4))
+
+      //整体加载
+      import * as circle from './circle'
+      console.log('圆面积：' + circle.area(4))
+      console.log('圆周长：' + circle.circumference(4))
+      
+      //6.export default命令
+      //导出匿名的函数,export-default.js
+      export default function() {
+        console.log('foo')
+      }
+      //import-default.js
+      import customName from './export-default'
+      customName() // 'foo
+      
+      //export default输出一个叫做default的变量或方法
+      //modules.js
+      function add(x,y) {
+        return x + y
+      }
+      export { add as default }
+
+      //app.js
+      import { default as foo } from 'modules';
+      //7.export与import的复合写法
+      export { foo,bar } from 'my_module'
+
+      //可以简单理解为
+      export { foo,bar } from 'my_module'
+      import { foo,bar } from 'my_module'
+      //8.模块的继承
+      //circleplus.js
+      export * from 'circle'
+      export var e = 2.71828182846
+      export default function(x) {
+        return Math.exp(x)
+      }
+      export { area as circleArea } from 'circle'
+
+      //main.js
+      import * as math from 'circleplus'
+      import exp from 'circleplus'
+      console.log(exp(math.e))
+      //9.跨模块常量
+      //constants.js
+      export const A = 1
+      export const B = 3
+      export const C = 4
+
+      //test1.js 模块
+      import * as constants from './constants'
+      console.log(constants.A) //1
+      console.log(constants.B) //3
+
+      //test2.js模块
+      import { A, B } from './constants'
+      console.log(constants.A) //1
+      console.log(constants.B) //3
+
+      //constants/db.js
+      export const db = {
+        url: 'http://my.couchdbserver.local:5984',
+        admin_username: 'admin',
+        admin_password: 'admin password',
+      }
+
+      //constants/user.js
+      export const users = ['root','admin','staff','ceo','chief','moderator']
+
+      //constants/index.js
+      export {db} from './db'
+      export {users} from './users'
+
+      //script.js
+      import { db,users } from './constants/index'
+      //10.import()
+      import() //异步加载
+
+      //(1)按需加载
+      button.addEventListener('click',event => {
+        import('./dialogBox.js')
+        .then(dialogBox => {
+          dialogBox.open()
+        })
+        .catch(error => {
+          // Error handling
+        })
+      })
+      //(2)条件加载
+      //import()可以放在if代码块
+      if (condition) {
+        import('moduleA').then();
+      } else {
+        import('moduleB').then()
+      }
+
+      import('./myModule.js')
+      .then(({export1,export2}) => {
+
+      })
+
+      import('./myModule.js')
+      .then(myModule => {
+        console.log(myModule.default)
+      })
+
+      import('./myModule.js')
+      .then(({default: theDefault}) => {
+        console.log(theDefault)
+      })
+
+      //同时加载多个模块
+      Promise.all([
+        import('./module1.js'),
+        import('./module2.js'),
+        import('./module3.js'),
+      ])
+      .then(([module1,module2,module3]) => {
+        //...
+      })
+
+      //async函数中
+      async function main() {
+        const myModule = await import('./myModule.js')
+        const { export1,export2 } = await import('./myModule.js')
+        const [module1,module2,module3] = 
+          await Promise.all([
+            import('./module1.js'),
+            import('./module2.js'),
+            import('./module3.js'),
+          ])
+      }
+
+      main()
+
+      //Module的加载实现
+      //1.浏览器加载
+      //异步加载方式
+      //<script src="path/to/myModule.js" defer>
+      //<script src="path/to/myModule.js" async>
+      //defer与async的区别是:
+      //defer 渲染完再执行
+      //async 下载完就执行
+
+      //2.ES6模块与CommonJS模块的差异
+      //1.CommonJS模块输出的是一个值的拷贝,ES6模块输出的是值得引用
+      //2.CommonJS模块是运行时加载,ES6模块是编译时输出接口
+      //3.CommonJS模块的require是同步加载模块,ES6模块的import命令是异步加载,有一个独立的模块依赖的解析阶段
+      
+      //CommonJS
+      //lib.js
+      var counter = 3
+      function incCounter() {
+        counter++
+      }
+      module.exports = {
+        counter: counter,
+        incCounter: incCounter
+      }
+
+      //main.js
+      var mod = require('./lib')
+
+      console.log(mod.counter) //3
+      mod.incCounter() 
+      console.log(mod.counter) //3
+
+      //lib.js 值写成一个函数
+      var counter = 3
+      function incCounter() {
+        counter++
+      }
+      module.exports = {
+        get counter() {
+          return counter
+        },
+        incCounter: incCounter
+      }
+      //main.js
+      var mod = require('./lib')
+
+      console.log(mod.counter) //3
+      mod.incCounter() 
+      console.log(mod.counter) //4
+
+      //ES6的模块加载 
+      //lib.js
+      export let counter = 3
+      export function incCounter() {
+        counter++
+      }
+
+      //main.js
+      import { counter,incCounter } from './lib'
+      console.log(counter) // 3
+      incCounter()
+      console.log(counter) //4
+
+      //m1.js
+      export var foo = 'bar'
+      setTimeout(() => foo = 'baz',500)
+
+      //m2.js
+      import { foo } from './m1.js'
+      console.log(foo) //bar 
+      setTimeout(() => console.log(foo),500) //baz
+
+      //3.Node.js的模块加载方法
+      //node.js v.13.2 版本开始打开ES6模块支持
+      //4.循环加载
+
+      //编程风格
+      //1.块级作用域
+      //(1)let取代var
+
+      'use strict'
+      if (true) {
+        let x = 'hello'
+      }
+
+      for (let i = 0; i < 10; i++) {
+        console.log(i)
+      }
+
+      //var命令存在变量提升效用,let命令没有这个问题
+      'use strict'
+      if (true) {
+        console.log(x) //referenceError
+        let x = 'hello'
+      }
+
+      //(2) 全局常量和线程安全
+      //在let和const之间，建议优先使用const,尤其在全局环境中,不应该设置变量,只应设置常量
+      //const由于let的几个原因
+      //1.const可以提醒阅读程序的人，这个变量不应该改变
+      //2.const比较符合函数式编程思想，运算不改变值，只是新建值
+      //3.JavaScript编译器会对const进行优化，多使用const，有利于提高程序效率
+      //bad 
+      var a = 1, b = 2, c = 3;
+
+      //good
+      const a = 1;
+      const b = 2;
+      const c = 3;
+
+      //best 
+      const [a, b, c] = [1, 2, 3];
+
+      //2.字符串:静态字符串一律使用单引号或反引号，不使用双引号。动态字符串串使用反引号
+      //bad
+      const a = "foobar";
+      const b = "foo" + a + 'bar';
+
+      //acceptable
+      const c = `footbar`;
+
+      //good
+      const a = 'footbar';
+      const b = `foot${a}bar`;
+      //3.解构赋值
+      //(1)使用数组成员对变量赋值时，优先使用解构赋值
+      const arr = [1, 2, 3, 4]
+      //bad
+      const first = arr[0]
+      const second = arr[1]
+
+      //good
+      const [first, second] = arr
+
+      //(2)函数的参数如果是对象成员，优先使用解构赋值
+
+      //bad
+      function getFullName(user) {
+        const firstName = user.firstName
+        const lastName = user.lastName
+      }
+
+      //good
+      function getFullName(obj) {
+        const { firstName, lastName } = obj
+      }
+
+      //best 
+      function getFullName({ firstName, lastName}) {
+
+      }
+
+      //(3)如果函数返回多个值，优先使用对象的解构赋值，而不是数组的解构赋值
+      //bad
+      function processInput(input) {
+        return [ left, right, top, bottom]
+      }
+
+      //good
+      function processInput(input) {
+        return { left, right, top, bottom}
+      }
+
+      const { left, right } = processInput(input)
+
+      //4.对象
+      //(1)单行定义的对象,最后一个成员不以逗号结尾。多行定义的对象，最后一个成员以逗号结尾。
+      //bad
+      const a = { k1: v1, k2: v2, };
+      const b = { 
+        k1: v1, 
+        k2: v2
+      };
+
+      //good
+      const a = { k1: v1, k2: v2 };
+      const b = {
+        k1: v1,
+        k2: v2,
+      }
+
+      //(2)对象尽量静态化，一旦定义，就不得随意添加新的属性。如果添加属性不可避免，要使用Object.assign方法
+      //bad
+      const a = {};
+      a.x = 3;
+
+      //if reshape unavoidable
+      const a = {};
+      Object.assign(a,{ x: 3 })
+
+      //good
+      const a = { x: null }
+      a.x = 3
+
+      //(3)如果对象的属性名是动态的，可以在创造对象的时候，使用属性表达式定义
+      //bad
+      const obj = {
+        id: 5,
+        name: 'San Francisco',
+      };
+      obj[getKey('enabled')] = true;
+
+      //good
+      const obj = {
+        id: 5,
+        name: 'San Francisco',
+        [getKey('enabled')]: true,
+      }
+
+      //(4)对象的属性和方法,尽量采用简洁表达法,这样易于描述和书写
+      var ref = 'some value'
+
+      //bad
+      const atom = {
+        ref: ref,
+
+        value: 1,
+
+        addValue: function (value) {
+          return atom.value + value;
+        },
+      };
+
+      //good
+      const atom = {
+        ref,
+
+        value: 1,
+
+        addValue(value) {
+          return atom.value + value
+        },
+      };
+      //5.数组
+      //(1)使用扩展运算符(...)拷贝数组
+      //bad
+      const len = items.length
+      const itemCopy = [];
+      let i;
+      for (i = 0; i < len; i++) {
+        itemCopy[i] = items[i]
+      }
+
+      //good
+      const itemsCopy = [...items];
+
+      //(2)使用Array.from方法,将类似数组的对象转为数组
+      const foo = document.querySelectorAll('.foo');
+      const nodes = Array.from(foo);
+
+      //6.函数
+      //(1)立即执行函数可以写成箭头函数的形式
+      (() => {
+        console.log('Welcome to the Internet.')
+      })();
+
+      //(2)使用匿名函数当作参数的场合,尽量用箭头函数代替。这样书写更简洁,而且绑定了this。
+      //bad
+      [1, 2, 3].map(function (x) {
+        return x * x;
+      });
+
+      //good
+      [1, 2, 3].map((x) => {
+        return x * x;
+      });
+
+      //best 
+      [1, 2, 3].map(x => x * x);
+
+      //(3)箭头函数取代Function.prototype.bind,不应再用self/_this/that绑定this
+      //bad
+      const self = this;
+      const boundMethod = function(...params) {
+        return method.apply(self,params);
+      }
+      //acceptable
+      const boundMethod = method.bind(this);
+
+      //best
+      const boundMethod = (...params) => method.apply(this, params)
+
+      //(4)简单的、单行的、不会复用的函数，建议采用箭头函数。如果函数体较为复杂，行数较多，还是采用传统的函数写法
+
+      //(5)所有配置项都应该集中在一个对象，放在最后一个参数，布尔值不可以直接作为参数
+      //bad
+      function divide(a, b, option = false ) {
+
+      }
+
+      //good
+      function divide(a, b, { option = false } = {}) {
+
+      }
+
+      //(6)不要在函数体内使用arguments变量，使用rest运算符(...)代替。因为rest运算符显示表明你想要获取参数，而且arguments是一个类似数组的对象，而rest运算符可以提供一个真正的数组
+      //bad
+      function concatenateAll() {
+        const args = Array.prototype.slice.call(arguments)
+        return args.join('');
+      }
+
+      //good
+      function concatenateAll(...args) {
+        return args.join('');
+      }
+
+      //(7)使用默认值语法设置函数参数的默认值
+      //bad
+      function handleThings(opts) {
+        opts = opts || {}
+      }
+
+      //good
+      function handleThings(opts = {}) {
+        // ...
+      }
+      //7.Map结构
+      //(1)模拟现实世界的实体对象时，才使用Object。如果只是需要key:value的数据结构，使用Map结构
+      let map = new Map(arr);
+      for (let key of map.keys()) {
+        console.log(key);
+      }
+
+      for (let value of map.values()) {
+        console.log(value);
+      }
+
+      for (let item of map.entries()) {
+        console.log(item[0], item[1]);
+      }
+      //8.Class
+      //(1)总是用Class取代prototype操作。因为Class的写法更简洁，更易于理解
+      //bad
+      function Queue(contents = []) {
+        this._queue = [...contents];
+      }
+
+      Queue.prototype.pop = function() {
+        const value = this._queue[0];
+        this._queue.splice(0,1);
+        return value;
+      }
+
+      //good
+      class Queue {
+        constructor(contents = []) {
+          this._queue = [...contents];
+        }
+        pop() {
+          const value = this._queue[0];
+          this._queue.splice(0,1);
+          return value;
+        }
+      }
+
+      //(2)使用extends实现继承，因为这样更简单，不会有破坏instanceof运算的危险
+      //bad
+      const inherits = require('inherits')
+      function PeekableQueue(contents) {
+        Queue.apply(this, contents)
+      }
+      inherits(PeekableQueue,Queue)
+      PeekableQueue.prototype.peek = function() {
+        return this._queue[0]
+      }
+
+      //good
+      class PeekableQueue extends Queue {
+        peek() {
+          return this._queue[0]
+        }
+      }
+      //9.模块  
+      //(1)使用import取代require()
+      //CommonJS的写法
+      const moduleA = require('moduleA');
+      const func1 = moduleA.func1;
+      const func2 = moduleA.func2;
+
+      //ES6的写法
+      import { func1, func2 } from 'moduleA'
+
+      //(2)使用export取代module.exports
+      //CommonJS的写法
+      var React = require('react');
+      var Breadcrumbs = React.createClass({
+        render() {
+          return <nav />
+        }
+      })
+
+      module.exports = Breadcrumbs
+
+      //ES6的写法
+      import React from 'react';
+
+      class Breadcrumbs extends React.Component {
+        render() {
+          return <nav />;
+        }
+      };
+
+      export default Breadcrumbs;
+
+      //默认模块输出一个函数，函数名的首字母应该小写，表示这是一个工具方法
+      function makeStyleGuide() {
+
+      };
+      export default makeStyleGuide;
+
+      //如果模块默认输出一个对象，对象名的首字母应该大写，表示这是一个配置值对象
+      const StyleGuide = {
+        es6: {
+
+        }
+      };
+
+      export default StyleGuide;
+      //10.ESLint的使用
+      //ESLint是一个语法规则和代码风格的检查工具，可以用来保证写出语法正确、风格统一的代码
+      
+      //读懂ECMAScript规格
+      //1.概述
+      //规格文件是计算机语言的官方标准，详细描述语法规则和实现方法
+
+      //2.术语
+      //(1)抽象操作：抽象操作就是引擎的一些内部方法,外部不能调用
+      //(2)Record和field：键值对(key-value map)的数据结构成为Record，其中每一组键值对称为field。
+      //(3)[[Notation]]这种书写方式的属性，都是对象的内部属性。
+      //(4)Completion Record每一个语句都会返回一个Completion Record,表示运行结果。每个Completion
+      //Record有一个[[Type]]属性，表示运行结果的类型
+      //[[Type]]属性有五种可能值：normal/return/throw/break/continue
+      //3.抽象操作的标准流程
+      //4.相等运算符
+      //5.数组的空位
+      const a1 = [undefined, undefined, undefined];
+      const a2 = [, , ,];
+      a1.length // 3
+      a2.length // 3
+
+      a1[0] //undefined
+      a2[0] //undefined
+
+      a1[0] === a2[0] //true
+
+      //但是实际上存在重大差异
+      0 in a1  //true
+      0 in a2  //false
+
+      a1.hasOwnProperty(0) //true
+      a2.hasOwnProperty(0) //false
+
+      Object.keys(a1) //["0","1","2"]
+      Object.keys(a2) //[]
+
+      a1.map(n => 1) // [1, 1, 1]
+      a2.map(n => 1) // [, , ,]
+      //6.数组的map方法
+       
+      //异步遍历器
+      //1.同步遍历器的问题
+      //it.next()方法必须是同步的，只要调用就必须返回值
+      function idMaker() {
+        let index = 0;
+
+        return {
+          next: function() {
+            return { value: index++, done: false};
+          }
+        }
+      }
+      const it = idMaker();
+
+      it.next().value //0
+      it.next().value //1
+      it.next().value //2
+      //next()方法返回的是一个Promise对象，不符合Iterator协议，只要代码包含异步操作都不行
+      //解决方法是异步操作包装成Thunk函数或者Promise对象，即next()返回值的vallue属性是一个Thunk函数或者Promise对象
+      //而done属性还是同步产生的
+
+      function idMaker() {
+        let index = 0
+
+        return {
+          next: function() {
+            return {
+              value: new Promise(resolve => setTimeout(() => resolve(index++),1000)),
+              done: false
+            }
+          }
+        }
+      }
+
+      const it = idMaker();
+      it.next().value.then(o => console.log(o)) //0
+      it.next().value.then(o => console.log(o)) //1
+      it.next().value.then(o => console.log(o)) //2
+
+      //2.异步遍历的接口
+      //异步遍历器的最大语法特点，就是调用遍历器的next方法，返回的是一个Promise对象
+      asyncIterator
+        .next()
+        .then(
+          ({ value, done }) => ''
+        );
+
+      //异步遍历器的例子
+      const asyncIterable = createAsyncIterable(['a', 'b']);
+      const asyncIterator = asyncIterable[Symbol.asyncIterator]();
+
+      asyncIterator
+        .next()
+        .then(iterResult1 => {
+          console.log(iterResult1); // { value: 'a', done: false}
+          return asyncIterator.next();
+        })
+        .then(iterResult2 => {
+          console.log(iterResult2); // { value: 'b', done: false}
+          return asyncIterator.next();
+        })
+        .then(iterResult3 => {
+          console.log(iterResult3); // { value: undefined, done: true}
+        })
+
+      //异步遍历器的next方法，返回的是一个Promise对象。因此，可以把它放在await后面
+      async function f() {
+        const asyncIterable = createAsyncIterable(['a','b']);
+        const asyncIterator = asyncIterable[Symbol.asyncIterator]();
+        console.log(await asyncIterator.next());
+        //{ value: 'a', done: false }
+        console.log(await asyncIterator.next());
+        //{ value: 'b', done: false }
+        console.log(await asyncIterator.next());
+        //{ value: undefined, done: true }
+      }
+
+      //next方法是可以连续调用的，不必等到上一步产生的Promise对象resolve以后再调用。
+      const asyncIterable = createAsyncIterable(['a','b']);
+      const asyncIterator = asyncIterable[Symbol.asyncIterator]();
+      const [{value: v1},{value: v2}] = await Promise.all([
+        asyncIterator.next(), asyncIterator.next()
+      ])
+      console.log(v1,v2); //a b
+
+      //3.for await...of
+      async function f() {
+        for await (const x of createAsyncIterable(['a','b'])) {
+          console.log(x)
+        }
+      } 
+      //如果next方法返回的Promise对象被reject,for await...of就会报错,要用try...catch捕捉
+      async function f() {
+        try {
+          for await (const x of createRejectingIterable()) {
+            console.log(x)
+          }
+        } catch (e) {
+          console.error(e)
+        }
+      }
+
+      //for await...of循环也可以用于同步遍历器
+      (async function () {
+        for await (const x of ['a','b']) {
+          console.log(x)
+        }
+      })() //a b
+
+      //Node v10支持异步遍历器 Stream就部署了这个接口。下面是读取文件的传统写法与异步遍历器写法的差异
+
+      //传统写法
+      function main(inputFilePath) {
+        const readStream = fs.createReadStream(
+          inputFilePath,
+          { encoding: 'utf8', highWaterMark: 1024 }
+        );
+        readStream.on('data',(chunk) => {
+          console.log('>>> ' + chunk)
+        });
+        readStream.on('end',(chunk) => {
+          console.log('### DONE ###')
+        });
+      }
+
+      //异步遍历器写法
+      async function main(inputFilePath) {
+        const readStream = fs.createReadStream(
+          inputFilePath,
+          { encoding: 'utf8', highWaterMark: 1024 }
+        );
+
+        for await (const chunk of readStream) {
+          console.log('>>>' + chunk);
+        }
+
+        console.log('### DONE ###')
+      }
+      
+      //4.异步Generator函数
+      //(1)异步Generator函数8就是async函数与Generator函数的结合
+      async function* gen() {
+        yield 'hello';
+      }
+
+      const genObj = gen();
+      genObj.next().then(x => console.log(x))
+
+      //同步Generator函数
+      function* map(iterable, func) {
+        const iter = iterable[Symbol.iterator]();
+        while (true) {
+          const { value, done } = iter.next();
+          if (done) break;
+          yield func(value)
+        }
+      }
+
+      //异步Generator函数
+      async function* map(iterable,func) {
+        const iter = iterable[Symbol.asyncIterator]();
+        while (true) {
+          const { value, done } = await iter.next();
+          if (done) break;
+          yield func(value)
+        }
+      }
+
+      //异步Generator函数自动执行器
+      async function takeAsync(asyncIterable, count = Infinity) {
+        const result = [];
+        const iterator = asyncIterable[Symbol.asyncIterator]()
+        while (result.length < count) {
+          const { value, done } = await iterator.next();
+          if (done) break;
+          result.push(value)
+        }
+
+        return result
+      }
+      //自动执行器的使用
+      async function fn() {
+        async function* gen() {
+          yield 'a'; 
+          yield 'b'; 
+          yield 'c'; 
+        }
+
+        return await takeAsync(gen())
+      }
+      f().then(result => {
+        console.log(result); //['a', 'b', 'c']
+      })
+
+      //JavaScript就有了四种函数形式：普通函数、async函数、Generator函数和异步Generator函数
+      //5.yield* 语句
+      //yield*语句也可以跟一个异步遍历器
+      async function* gen1() {
+        yield 'a';
+        yield 'b';
+        return 2
+      }
+
+      async function* gen2() {
+        //result最终等于2
+        const result = yield* gen1();
+      }
+
+      //异步Generator for await...of循环会展开yield*
+      (async function() {
+        for await (const x of gen2()) {
+          console.log(x)
+        }
+      })()
+      //a
+      //b
+
+      //ArrayBuffer
+      //1.ArrayBuffer对象
+      //(1)代表存储二进制数据的一段内存，它不能直接读写，只能通过视图(TypedArray视图和DataView视图)来读写，视图的作用是以指定格式来解读二进制数据。
+
+      //(2)ArrayBuffer是构造函数，可以为其分配一段存放数据的连续内存区域.
+      const buf = new ArrayBuffer(32)
+      const dataView = new DataView(buf)
+      dataView.getUint8(0) //0
+
+      //(3)TypedArray视图与DataView视图的一个区别是，它不是一个构造函数，而是一组构造函数，代表不同的数据格式。
+      const buffer = new ArrayBuffer(12)
+      const x1 = new Int32Array(buffer)
+      x1[0] = 1
+      const x2 = new Uint8Array(buffer)
+      X2[0] = 2
+
+      x1[0] //2 代表同一段内存
+
+      //可以接受普通数组作为参数，直接分配内存生成的ArrayBuffer实例，并同时完成对这段内存的赋值
+      const typedArray = new Uint8Array([0,1,2])
+      typedArray.length // 3
+      typedArray[0] = 5
+      console.log(typedArray) //[5, 1, 2]
+
+      //(3)ArrayBuffer.prototype.byteLength
+      //ArrayBuffer实例的byteLength属性,返回所分配的内存区域的字节长度
+      const buffer = new ArrayBuffer(32)
+      buffer.byteLength //32
+      //分配的内存区域很大，有可能分配失败，因此有必要检查是否分配成功
+      if (buffer.byteLength === n) {
+        //成功
+      } else {
+        //失败
+      }
+
+      //(4)ArrayBuffer.prototype.slice()
+      //ArrayBuffer实例有一个slice方法，允许将内存区域的一部分，拷贝成一个新的ArrayBuffer对象
+      const buffer = new ArrayBuffer(8)
+      const newBuffer = buffer.slice(0,3)
+
+      //(5)ArrayBuffer.isView()
+      //返回布尔值，表示参数是否为ArrayBuffer的视图实例
+
+      const buffer = new ArrayBuffer(8)
+      ArrayBuffer.isView(buffer) //false
+
+      const v = new Int32Array(buffer)
+      ArrayBuffer.isView(v) //true
+
+      //2.TypedBuffer视图
+      //(1)TypedBuffer一共有9种类型，每一种视图都是一种构造函数
+      //Int8Array:8位有符号整数,长度1个字节
+      //UInt8Array:8位无符号整数,长度1个字节
+      //UInt8ClampedArray:8位无符号整数,长度1个字节,溢出不处理
+      //Int16Array:16位有符号整数，长度2个字节
+      //UInt16Array:16位无符号整数，长度2个字节
+      //Int32Array:32位有符号整数，长度4个字节
+      //UInt32Array:32位无符号整数，长度4个字节
+      //Float32Array:32位浮点数，长度4个字节
+      //Float64Array:64位浮点数，长度8个字节
+
+      //创建一个8字节的ArrayBuffer
+      const b = new ArrayBuffer(8)
+
+      //创建一个指向b的Int32视图，开始于字节0，直到缓冲区的末尾
+      const v1 = new Int32Array(b)
+
+      //创建一个指向b的Uint8视图，开始于字节2，直到缓冲区的末尾
+      const v2 = new Uint32Array(b,2)
+
+      //创建一个指向b的Int16视图，开始于字节2，长度位2
+      const v3 = new Int16Array(b, 2, 2)
+
+      //(2)TypedArray(length):可以不通过ArrayBuffer对象，直接分配内存
+      const f64a = new Float32Array(8)
+      f64a[0] = 10
+      f64a[1] = 20
+      f64a[2] = f64a[0] + f64a[1]
+
+      //(3)TypedArray(typedArray):可以接受另一个TypedArray实例作为参数
+      const x = new Int8Array([1,1])
+      const y = new Int8Array(x)
+      x[0] // 1
+      y[0] // 1
+
+      x[0] = 2
+      y[0] //1
+      //上面代码不是指向同一内存
+
+      //如果想基于同一段内存，构造不同的视图
+      const x = new Int8Array([1,1])
+      const y = new Int8Array(x.buffer)
+      y[0] //1
+      y[0] //1
+
+      x[0] = 2
+      y[0] // 2
+
+      //(4)TypedArray(arrayLikeObject)
+      //构造函数的参数也可以是普通数组，然后直接生成TypedArray实例
+      const typedArray = new Uint8Array([1, 2, 3, 4])
+
+      //typedArray数组也可以转换回普通数组
+      const normalArray = [...typedArray]
+
+      //or
+      const nornamlArray = Array.from(typedArray)
+
+      //or
+      const normalArray = Array.prototype.slice.call(typedArray)
+
+      //3.复合视图:在同一段内存中，存放不同类型的数据，着叫做"复合视图"
+      const buffer = new ArrayBuffer(24);
+      const idView = new Uint32Array(buffer,0,1)
+      const usernameView = new Uint8Array(buffer,4,16)
+      const amountDueView = new Uint8Array(buffer,20,1)
+      
+      //4.DataView视图:处理网络设备传输数据
+      const buffer = new ArrayBuffer(24)
+      const dv = new DataView(buffer)
+
+      //从第1个字节读取一个8位无符号整数
+      const v1 = dv.getUint8(0);
+
+      //从第2个字节读取一个16位无符号整数
+      const v2 = dv.getUint16(1)
+
+      //从第4个字节读取一个16位无符号整数
+      const v3 = dv.getUint16(3)
+
+      // 小端字节序
+      const v1 = dv.getUint16(1, true);
+
+      // 大端字节序
+      const v2 = dv.getUint16(3, false);
+
+      // 大端字节序
+      const v3 = dv.getUint16(3);
+
+      // 在第1个字节，以大端字节序写入值为25的32位整数
+      dv.setInt32(0, 25, false);
+
+      // 在第5个字节，以大端字节序写入值为25的32位整数
+      dv.setInt32(4, 25);
+
+      // 在第9个字节，以小端字节序写入值为2.5的32位浮点数
+      dv.setFloat32(8, 2.5, true);
+
+      //5.二进制数组的应用
+      //(1)AJAX:如果明确知道返回的是二进制数据类型,可以把返回类型(responseType)设为arraybuffer;如果不知道，就设为blob
+      let xhr = new XMLHttpRequest()
+      xhr.open('GET',someUrl)
+      xhr.responseType = 'arraybuffer'
+
+      xhr.onload = function () {
+        let arrayBuffer = xhr.response
+      }
+
+      xhr.send()
+      //传回来是32位的整数
+      xhr.onreadystatechange = function () {
+        if (req.readState === 4) {
+          const arrayResponse = xhr.response;
+          const dataView = new DataView(arrayResponse);
+          const ints = new Uint32Array(dataView.byteLength/4)
+
+          xhrDiv.style.backgroundColor = "#00FF00"
+          xhrDiv.innerText = "Array is " + ints.length + "units long"
+        }
+      }
+
+      //(2)Canvas
+      const canvas = document.getElementById('myCanvas')
+      const ctx = canvas.getContext('2d')
+      const imageData = ctx.getImageData(0,0,canvas.width,canvas.height)
+      //unit8ClampedArray类型确保将小于的值设为0，将大于255的值设为255
+      const unit8ClampedArray = imageData.data
+
+      //(3)WebSocket可以通过ArrayBuffer，发送或接收二进制数据
+      let socket = new WebSocket('ws://127.0.0.1:8081')
+      socket.binaryType = 'arraybuffer'
+
+      socket.addEventListener('open',(event) => {
+        const typedArray = new Uint8Array(4)
+        socket.send(typedArray.buffer)
+      })
+
+      socket.addEventListener('message',(event) => {
+        const arrayBuffer = event.data
+      })
+
+      //(4)Fetch API
+      fetch(url)
+      .then(resp => {
+        return resp.arrayBuffer()
+      }).then(arrayBuffer => {
+
+      })
+
+      //(5)File API
+      const fileInput = document.getElementById('fileInput')
+      const file = fileInput.files[0]
+      const reader = new FileReader()
+      reader.readAsArrayBuffer(file)
+      reader.onload = function () {
+        const arrayBuffer = reader.result
+      }
+     
+      //6.SharedArrayBuffer
+       //主线程
+       const w = new Worker('myworker.js')
+      w.postMessage('hi')
+      w.onmessage = function (ev) {
+        console.log(ev.data)
+      }
+
+      //Worker线程
+      onmessage = function (ev) {
+        console.log(ev.data)
+        postMessage('ho')
+      }
+
+      //主线程与Worker线程共享同一块内存
+      //新建1KB共享内存
+      const sharedBuffer = new SharedArrayBuffer(1024)
+      //主线程将共享内存的地址发送出去
+      w.postMessage(sharedBuffer)
+      //在共享内存上建立视图，供写入数据
+      const sharedBuffer = new Int32Array(sharedBuffer)
+
+      //worker线程
+      onmessage = function (ev) {
+        //主线程共享的数据，就是1KB的共享内存
+        const sharedBuffer = ev.data
+        //在共享内存上建立视图，方便读写
+        const sharedArray = new Int32Array(sharedBuffer)
+      }
+
+      //SharedArrayBuffer与ArrayBuffer一样，本身是无法读写，必须建立视图
+      //分配10万个32位整数占据的内存空间
+      const sab = new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT * 100000)
+
+      const ia = new Int32Array(sab)
+
+      const primes = new PrimeGenerator()
+
+      for (let i = 0; i < ia.length; i++) {
+        ia[i] = primes.next()
+      }
+      //向Worker线程发送这段共享内存
+      w.postMessage(ia)
+
+      //Worker线程
+      let ia
+      onmessage = function (ev) {
+        ia = ev.data
+      }
+      //7.Atomics对象:保证所有共享内存的"原子性",并且可以在所有线程内同步
+
+      //(1)Atomics.store(),Atomics.load()
+      //store()写入数据,load读取数据
+      Atomics.load(typedArray,index)
+      Atomics.store(typedArray,index,value)
+
+      //主线程
+      ia[42] = 314159
+      Atomics.store(ia,37,123456) //原来的值是163
+
+      //Worker线程
+      while (Atomics.load(ia,37) == 163)
+      console.log(ia[37]) //123456
+      console.log(ia[42]) //314159
+      
+      //WebGL,就是指浏览器与显卡之间的通信接口,为了满足JavaScript与显卡之间大量的 实时的数据交换
+      //(1)ArrayBuffer对象:代表内存之中的一段二进制数据,可以通过"视图"进行操作
+      //(2)TypedBuffer视图:共包括9种类型的视图,比如Uint8Array(无符号8位整数)数组视图,Int16Array(16位整数)数组视图,
+      //Float32Array(32位浮点数)数组视图等等。
+      //Float32Array(32浮点数)数组视图等
+      //(3)DataView视图：可以自定义复合格式的视图，比如第一个字节是Uint8(无符号8位整数)、第二、第三字节是Int16(16位整数)、
+      //第四个字节开始Float32(32位浮点数)
+
+      //装饰器:目前只是提案，@ + 函数名
+      //1.类的装饰
+      @frozen class Foo {
+        @configurable(false)
+        @enumerable(true)
+        method() {}
+
+        @throttle(500)
+        expensiveMethod() {}
+      }
+
+      //装饰器可以用来装饰整个类
+      @testable
+      class MyTestableClass {
+        // ...
+      }
+
+      function testable(target) {
+        target.isTestable = true
+      }
+      //为MyTestableClass类加上了静态属性isTestable
+      MyTestableClass.isTestable // true
+
+      //装饰器的行为
+      @decorator
+      class A {}
+      //等同于
+      class A {}
+      A = decorator(A) || A
+
+      //如果觉得一个参数不够用,可以在装饰器外面再封装一层函数
+      function testable(isTestable) {
+        return function(target) {
+          target.isTestable = isTestable
+        }
+      }
+
+      @testable(true)
+      class MyTestableClass {}
+      MyTestableClass.isTestable //true
+
+      @testable(false)
+      class MyClass {}
+      MyClass.isTestable //false
+      //装饰器本质就是编译时执行的函数
+
+      //如果想为类添加一个实例属性,可以通过目标类的prototype对象操作
+      function testable(target) {
+        target.prototype.isTestable = true
+      }
+
+      @testable
+      class MyTestableClass {}
+
+      let obj = new MyTestableClass()
+      obj.isTestable //true
+      
+      //mixins.js
+      export function mixins(...list) {
+        return function (target) {
+          Object.assign(target.prototype,...list)
+        }
+      }
+      //main.js
+      import { mixins } from './mixins.js'
+      const Foo = {
+        foo() { console.log('foo') }
+      }
+
+      @mixins(Foo)
+      class MyClass {}
+
+      let obj = new MyClass()
+      obj.foo()
+
+      //2.方法的装饰
+      //装饰器不仅可以装饰类，还可以装饰类的属性
+      class Person {
+        @readonly
+        name() { return `${this.first} ${this.last}`}
+      }
+      //readonly一共可以接受三个参数
+      function readonly(target, name, descriptor) {
+        descriptor.writable = false
+        return descriptor
+      }
+
+      readonly(Person.prototype, 'name', descriptor)
+      //类似于
+      Object.defineProperty(Person.prototype, 'name',descriptor)
+
+      //修改属性描述对象的enumerable属性，使属性不可遍历
+      class Person {
+        @nonenumerable 
+        get kidCount() { return this.children.length }
+      }
+
+      function nonenumerable(target, name, descriptor) {
+        descriptor.enumerable = false
+        return descriptor
+      }
+
+      //3.为什么装饰器不能用于函数
+      //装饰器只能用于类和类的方法，不能用于函数，因为存在函数提升
+      var counter = 0;
+      var add = function () {
+        counter++;
+      };
+      @add
+      function foo() {
+      }
+      //
+      var counter
+      var add
+
+      @add
+      function foo() {
+      }
+      add = function () {
+        counter++
+      }
+
+      //如果一定要装饰函数，可以采用告诫函数的形式直接执行
+      function doSomething(name) {
+        console.log('Hello,' + name)
+      }
+
+      function loggingDecorator(wrapped) {
+        return function() {
+          console.log('Starting')
+          const result = wrapped.apply(this,arguments)
+          console.log('Finished')
+          return result
+        }
+      }
+      const wrapped = loggingDecorator(doSomething)
+      //4.core-decorators.js
+      //是第三方模块，提供了几个常见的装饰器
+      //(1)@autobind
+      import { autobind } from 'core-decorators'
+      class Person {
+        @autobind 
+        getPerson() {
+          return this
+        }
+      }
+      let person = new Person() 
+      let getPerson = person.getPerson
+
+      getPerson() === person
+
+      //(2) @readonly
+      //readonly装饰器使得属性或方法不可写
+      import { readonly } from 'core-decorators'
+      class Meal {
+        @readonly
+        entree = 'steak'
+      }
+      var dinner = new Meal()
+      dinner.entree = 'salmon'
+      //Cannot assign to read only property 'entree' of [object Object]
+
+      //(3)@override
+      //override装饰器检查子类的方法，是否正确覆盖了父类的同名方法,如果不正确会报错
+      import { override } from 'core-decorations'
+      class Parent {
+        speak(first, second) {}
+      }
+
+      class Child extends Parent {
+        @override
+        speak() {}
+      }
+
+      class Child extends Parent {
+        @override
+        speaks() {}
+      }
+
+      //(4)@deprecate(别名)
+      //deprecate或deprecated装饰器在控制台显示一条警告，表示该方法将废除
+      class Person {
+        @deprecate
+        facepalm() {}
+
+        @deprecate('We stopped facepalming')
+        facepalmHard() {}
+
+        @deprecate('We stopped facepalming', { url: 'http://knowyourmeme.com/memes/facepalm' })
+        facepalmHarder() {}
+      }
+
+      let person = new Person() 
+      person.facepalm()
+      // DEPRECATION Person#facepalm: This function will be removed in future versions.
+      person.facepalmHard()
+      // DEPRECATION Person#facepalmHard: We stopped facepalming
+      person.facepalmHarder()
+      // DEPRECATION Person#facepalmHarder: We stopped facepalming
+      //
+      //     See http://knowyourmeme.com/memes/facepalm for more details.
+      //
+
+      //(5)@suppressWarnings
+      //suppressWarnings装饰器抑制deprecated装饰器导致的console.warn()调用
+      import { suppressWarnings } from 'core-decorators'
+      class Person {
+        @deprecated
+        facepalm()
+
+        @suppressWarnings
+        facepalmWithoutWarning() {
+          this.facepalm()
+        }
+      }
+      let person = new Person()
+      person.facepalmWithoutWarning() //no warning is logged
+      //5.使用装饰器实现自动发布事件
+      //使用装饰器，使得对象的方法被调用时，自动发出一个事件
+      const postal = require("postal/lib/postal.loadash")
+      export default function publish(topic,channel) {
+        const channelName = channel || '/'
+        const msgChannel = postal.channel(channelName)
+        msgChannel.subscribe(topic,v => {
+          console.log('频道：',channelName)
+          console.log('事件：',topic)
+          console.log('数据：',v)
+        })
+
+        return function(target, name, descriptor) {
+          const fn = descriptor.value
+
+          descriptor.value = function() {
+            let value = fn.apply(this, arguments)
+            msgChannel.publish(topic, value)
+          }
+        }
+      }
+
+      //index.js
+      import publish from './publish'
+
+      class FooComponent {
+        @publish('foo.some.message', 'component')
+        someMethod() {
+          return { my: 'data' }
+        }
+        @publish('foo.some.other')
+        anotherMethod() {
+
+        }
+      }
+      let foo = new FooComponent()
+      foo.someMethod()
+      foo.anotherMethod()
+      //6.Mixin
+      //Mixin模式，就是对象继承的一种替代方案，中文译为"混入"，意为在一个对象之中混入另一个对象的方法
+      const Foo = {
+        foo() { console.log('foo') }
+      }
+
+      class MyClass {}
+
+      Object.assign(MyClass.prototype,Foo)
+
+      let obj = new MyClass()
+      obj.foo() //foo
+
+      //将Mixin写成一个装饰器
+      export function mixins(...list) {
+        return function (target) {
+          Object.assign(target.prototype,...list)
+        }
+      }
+      //使用"混入"装饰器
+      import { mixins } from './mixins.js'
+      const Foo = {
+        foo() { console.log('foo') }
+      }
+      @mixins(Foo)
+      class MyClass {}
+
+      let obj = new MyClass()
+      obj.foo() //"foo"
+
+      //插入混入类
+      let MyMixin = (superclass) => class extends superclass {
+        foo() {
+          console.log('foo from MyMixin')
+        }
+      }
+
+      class MyClass extends MyMixin(MyBaseClass) {
+
+      }
+      let c = new MyClass()
+      c.foo()  //"foo from MyMixin"
+
+      //可以调用super
+      let Mixin1 = (superclass) => class extends superclass {
+        foo() {
+          console.log('foo from Mixin1')
+          if (super.foo) super.foo()
+        }
+      }
+
+      let Mixin2 = (superclass) => class extends superclass {
+        foo() {
+          console.log('foo from Mixin2')
+          if (super.foo) super.foo()
+        }
+      }
+
+      class S {
+        foo() {
+          console.log('foo from S')
+        }
+      }
+
+      class C extends Mixin1(Mixin2(S)) {
+        foo() {
+          console.log('foo from C');
+          super.foo();
+        }
+      }
+
+      new C().foo()
+      //foo from C
+      //foo from Mixin1
+      //foo from Mixin2
+      //foo from S
+      //7.Trait
+      //Trait也是一种装饰器，效果与Mixin类似，但提供更多功能
+      //Trait不允许"混入"同名方法
+      import { traits } from 'traits-decorator'
+      class TFoo {
+        foo() { console.log('foo') }
+      }
+      class TBar {
+        bar() { console.log('bar') }
+      }
+
+      @traits(TFoo, TBar)
+      class MyClass { }
+
+      let obj = new MyClass()
+      obj.foo() //foo
+      obj.bar() //bar
+
+      //一种解决方法排除TBar的foo方法
+      import { traits, excludes } from 'traits-decorator'
+
+      class TFoo {
+        foo() { console.log('foo') }
+      }
+
+      const TBar = {
+        bar() { console.log('bar') },
+        foo() { console.log('foo') }
+      }
+
+      @traits(TFoo,TBar::excludes('foo'))
+      class MyClass { }
+      let obj = new MyClass()
+      obj.foo() // foo
+      obj.bar() // bar 
+
+      //另一种方法是为TBar的foo方法起别名
+      import { traits, alias } from 'traits-decorator'
+      class TFoo {
+        foo() { console.log('foo') }
+      }
+
+      class TBar = {
+        bar() { console.log('bar') },
+        foo() { console.log('foo') }
+      }
+
+      @traits(TFoo,TBar::alias({foo: 'aliasFoo'}))
+      class MyClass { }
+      let obj = new MyClass()
+      obj.foo() //foo
+      obj.aliasFoo() //foo
+      obj.bar() //bar
   </script>
 </body>
-</html>  
+</html>   
