@@ -108,7 +108,7 @@
       align-items: flex-start | flex-end | center | baseline | stretch;
     }
   ```
-  ![](\iamges\bg2015071011.png)
+  ![](\images\bg2015071011.png)
   
   该属性有5个值:
   + flex-start: 交叉轴的起点对齐
@@ -196,7 +196,7 @@
         align-self: auto | flex-start | flex-end | center | baseline | stretch;
       }
     ```
-    ![](\images\bg2015071016.png)
+  ![](\images\bg2015071016.png)
 
 
 

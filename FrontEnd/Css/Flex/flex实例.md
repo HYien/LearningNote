@@ -6,8 +6,9 @@
   ```
 ## 一、骰子的布局
 ### 1.1 单子项
-  左上角1个点情况。Flex布局默认就是首行左对齐。
-  ![](\images\bg2015071301.png)
+左上角1个点情况。Flex布局默认就是首行左对齐。
+![](\images\bg2015071301.png)
+
   ```css
     .box {
       display: flex; 
@@ -15,6 +16,7 @@
   ```
   设置单项的对齐方式，就能实现居中对齐及右对齐
   ![](\images\bg2015071302.png)
+
   ```css
     .box {
       display: flex;
@@ -22,6 +24,7 @@
     }
   ```
   ![](\images\bg2015071303.png)
+
   ```css
     .box {
       display: flex;
@@ -29,6 +32,7 @@
     }
   ```
   设置交叉轴对齐方式，可以垂直移动主轴。
+  
   ![](\images\bg2015071304.png)
   ```css
     .box {
@@ -318,7 +322,7 @@
     } 
     .HolyGrail-body {
       display: flex;
-      flex: 1; /*自适应 1,1,auto */
+      flex: 1; /*自适应 1,1,100% */
     }
 
     .HolyGrail-content {
@@ -362,6 +366,7 @@
       flex: 1;
     }
   ```
+
 ## 五、悬挂式布局
   主栏的左侧或右侧，需要添加一个图片栏
   ![](\images\bg2015071325.png)
