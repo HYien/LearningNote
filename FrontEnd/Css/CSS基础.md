@@ -531,3 +531,625 @@ max-width 属性的值将覆盖 width（宽度）。
 ```
 
 ### CSS字体
++ font
+字体属性简写
+```css
+  p.b {
+    font: italic small-caps bold 12px/30px Georgia, serif;
+  }
+```
++ font-family
+```css
+  .p1 {
+    font-family: "Times New Roman", Times, serif;
+  }
+
+  .p2 {
+    font-family: Arial, Helvetica, sans-serif;
+  }
+```
++ font-style
+指定斜体文本
+```css
+  p.normal {
+    font-style: normal;
+  }
+
+  p.italic {
+  font-style: italic;
+}
+```
++ font-weight
+指定字体的粗细
+```css
+  p.normal {
+    font-weight: normal;
+  }
+
+  p.thick {
+    font-weight: bold;
+  }
+```
++ font-variant
+指定是否以 small-caps 字体（小型大写字母）显示文本
+```css
+  p.normal {
+    font-variant: normal;
+  }
+
+  p.small {
+    font-variant: small-caps;
+  }
+```
++ font-size
+设置文本的大小。
+```css
+  h1 {
+    font-size: 40px;
+  }
+  h1 {
+    font-size: 2.5em; /* 40px/16=2.5em */
+  }
+```
+
+### CSS图标
++ 使用font-asesome图标
+```html
+  <!DOCTYPE html>
+  <html>
+  <head>
+  <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+  </head>
+  <body>
+
+  <i class="fas fa-cloud"></i>
+  <i class="fas fa-heart"></i>
+  <i class="fas fa-car"></i>
+  <i class="fas fa-file"></i>
+  <i class="fas fa-bars"></i>
+
+  </body>
+  </html>
+```
+
+### CSS链接
++ a:link 为访问的链接
++ a:visited 用户访问过的链接
++ a:hover 用户将鼠标悬停在链接上
++ a:active 链接被点击时
+```css
+  /* hover必须在link、visited后 active必须在hover后 */
+  /* 未被访问的链接 */
+  a:link {
+    color: red;
+  }
+
+  /* 已被访问的链接 */
+  a:visited {
+    color: green;
+  }
+
+  /* 将鼠标悬停在链接上 */
+  a:hover {
+    color: hotpink;
+  }
+
+  /* 被选择的链接 */
+  a:active {
+    color: blue;
+  }
+```
++ text-decoration
+```css
+  a:link {
+    text-decoration: none;
+  }
+
+  a:visited {
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  a:active {
+    text-decoration: underline;
+  }
+```
++ background-color
+```css
+  a:link {
+    background-color: yellow;
+  }
+
+  a:visited {
+    background-color: cyan;
+  }
+
+  a:hover {
+    background-color: lightgreen;
+  }
+
+  a:active {
+    background-color: hotpink;
+  } 
+```
+
+### CSS列表
++ 无序列表<ul>
++ 有序列表<ol>
++ list-style
+简写属性。
+```css
+  ul {
+    list-style: square inside url("sqpurple.gif");
+  }
+```
++ list-style-type
+```css
+  ul.a {
+    list-style-type: circle;
+  }
+
+  ul.b {
+    list-style-type: square;
+  }
+
+  ol.c {
+    list-style-type: upper-roman;
+  }
+```
++ list-style-image
+```css
+  ul {
+    list-style-image: url('sqpurple.gif');
+  }
+```
+
++ list-style-position
+```css
+  ul.a {
+    list-style-position: outside;
+  }
+
+  ul.b {
+    list-style-position: inside;
+  }
+```
++ list-style-type 
+```css
+  ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+```
+
+### CSS表格
++ border
+```css
+  table, th, td {
+    border: 1px solid black;
+  }
+```
++ 全宽的表格
+```css
+  table {
+    width: 100%;
+  }
+```
++ border-collapse
+```css
+  table {
+    border-collapse: collapse;
+  }
+
+  table, th, td {
+    border: 1px solid black;
+  }
+```
++ height
++ text-align
++ vertical-align
++ padding
++ :hover
++ :nth-child()
++ overflow-x
+
+### CSS布局
++ display
+  - none
+```css
+  h1.hidden {
+    display: none;
+  }
+```
+  - inline
+  - block
+  - inline-block
+  ```css
+    span.b {
+      /* 允许在元素设置宽度和高度。 */
+      display: inline-block;
+      width: 100px;
+      height: 100px;
+      padding: 5px;
+      border: 1px solid blue; 
+      background-color: yellow; 
+    }
+
+    /* inline-block创建导航条 */
+    .nav {
+      background-color: yellow;
+      list-style-type: none;
+      text-align: center;
+      padding: 0;
+      margin: 0;
+    }
+    .nav li {
+      display: inline-block;
+      font-size: 20px;
+      padding: 20px;
+    }
+  ```
++ block element(块级元素)
++ inline element(行内元素)
++ visibility
+```css
+  h1.hidden {
+    visibility: hidden;
+  }
+```
++ width
+```css
+  div.ex1 {
+    width: 500px;
+    margin: auto;
+    border: 3px solid #73AD21;
+  }
+
+  div.ex2 {
+    /* 视口的最大宽度小于500 元素的width会缩小为视口的100% */
+    max-width: 500px;
+    margin: auto;
+    border: 3px solid #73AD21;
+  }
+```
++ max-width
++ position
+  - static
+  它始终根据页面的正常流进行定位。
+  ```css
+    div.static {
+      position: static;
+      border: 3px solid #73AD21;
+    }
+  ```
+  - relative
+  元素相对于其正常位置进行定位。
+  ```css
+    div.relative {
+      position: relative;
+      left: 30px;
+      border: 3px solid #73AD21;
+    }
+  ```
+  - fixed
+  元素相对于视口定位。
+  ```css
+    div.fixed {
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      width: 300px;
+      border: 3px solid #73AD21;
+    }
+  ```
+  - absolute
+  元素相对于最近的定位祖先元素进行定位。
+  ```css
+    div.relative {
+      position: relative;
+      width: 400px;
+      height: 200px;
+      border: 3px solid #73AD21;
+    }
+
+    div.absolute {
+      position: absolute;
+      top: 80px;
+      right: 0;
+      width: 200px;
+      height: 100px;
+      border: 3px solid #73AD21;
+    }
+  ```
+  - sticky
+    元素根据用户的滚动位置进行定位。粘性元素根据滚动位置在相对（relative）和固定（fixed）之间切换。
+    ```css
+      div.sticky {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 0;
+        background-color: green;
+        border: 2px solid #4CAF50;
+      }
+    ```
++ z-index
+元素进行定位时，它们可以与其他元素重叠。
+```css
+  img {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: -1;
+  }
+```
++ overflow
+overflow属性仅适用于具有指定高度的块元素。
+  - visible
+  默认。溢出没有被剪裁，内容在元素框外渲染。
+  ```css
+    div {
+      width: 200px;
+      height: 50px;
+      background-color: #eee;
+      overflow: visible;
+    }
+  ```
+  - hidden
+  溢出被剪裁，其余内容将不可见。
+  ```css
+    div {
+      overflow: hidden;
+    }
+  ```
+  - scroll
+  溢出被剪裁，同时添加滚动条以查看其余内容。
+  ```css
+    div {
+      overflow: scroll;
+    }
+  ```
+  - auto
+  仅在必要时添加滚动条。
+  ```css
+    div {
+      overflow: auto;
+    }
+  ```
++ overflow-x
+overflow-x 指定如何处理内容的左/右边缘。
+  - visible
+  - hidden
+  - scroll
+  - auto 
+
++ overflow-y
+overflow-y 指定如何处理内容的上/下边缘。
+  - visible
+  - hidden
+  - scroll
+  - auto 
+
++ float & clear
+float属性用于定位和格式化内容，例如让图像向左浮动到容器中的文本那里。
+  - left
+  ```css
+    img {
+      float: left;
+    }
+  ```
+  - right
+  ```css 
+    img {
+      float: right;
+    }
+  ```
+  - none
+  ```css
+    img {
+     /*清除浮动设置 */
+      float: none;
+    }
+  ```
+  - inherit
+
+clear属性指定哪些元素可以浮动于被清除元素的旁边以及哪一侧。
+  - none
+  默认值，允许两侧都有浮动元素。
+  - left
+  左侧不允许浮动元素。
+  ```css
+    div {
+      clear: left;
+    }
+  ```
+  - right
+  右侧不允许浮动元素。
+  ```css
+    div {
+      clear: right;
+    }
+  ```
+  - both
+  ```css
+    div {
+      clear: both;
+    }
+  ```
+  左侧或右侧均不允许浮动元素。
+  - inherit
+
+如果一个元素比包含它的元素高，并且它是浮动的，它将“溢出”到其容器之外：
+```css
+  .clearfix {
+    overflow: auto;
+  }
+
+  .clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+  }
+```
++ 浮动布局实例
+```css
+  * {
+    box-sizing: border-box;
+  }
+
+  .box {
+    float: left;
+    width: 33.33%;
+    padding: 50px;
+  }
+```
++ float布局水平导航菜单栏
+```html
+  <!DOCTYPE html>
+  <html>
+  <head>
+  <style>
+    ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #333;
+    }
+
+    li {
+      float: left;
+    }
+
+    li a {
+      display: inline-block;
+      color: white;
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+    }
+
+    li a:hover {
+      background-color: #111;
+    }
+
+    .active {
+      background-color: red;
+    }
+  </style>
+  </head>
+  <body>
+
+  <ul>
+    <li><a href="#home" class="active">Home</a></li>
+    <li><a href="#news">News</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#about">About</a></li>
+  </ul>
+
+  </body>
+  </html>
+```
+
++ 水平和垂直对齐
+  - 元素水平居中对齐
+  ```css
+    .center {
+      margin: auto;
+      width: 50%;
+      border: 3px solid green;
+      padding: 20px;
+    }
+  ```
+  - 文本水平居中对齐
+  ```css
+    .text-center {
+      text-align: center;
+      border: 3px solid green;
+    }
+  ```
+  - 图像居中对齐
+  ```css
+    img {
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      width: 40%;
+    }
+  ```
+  - 元素左和右对齐
+  ```css
+    /* position: absolute; */
+    .right {
+      position: absolute;
+      right: 0px;
+      width: 300px;
+      border: 3px solid #73AD21;
+      padding: 20px
+    }
+    /* position: float; */
+    .right {
+      float: right;
+      width: 300px;
+      border: 3px solid #73AD21;
+      padding: 10px;
+    }
+  ```
+  - 文本垂直居中
+  ```css
+    .center {
+      padding: 70px 0;
+      border: 3px solid green;
+    }
+
+    .center {
+      line-height: 200px;
+      height: 200px;
+      border: 3px solid green;
+      text-align: center;
+    }
+
+    /* 如果有多行文本，请添加如下代码：*/
+    .center p {
+      line-height: 1.5;
+      display: inline-block;
+      vertical-align: middle;
+    }
+  ```
+  - 文本水平垂直居中
+  ```css
+    .center {
+      padding: 70px 0;
+      border: 3px solid green;
+      text-align: center;
+    }
+  ```
+  - 元素水平垂直居中
+  ```css
+    .center {
+      height: 200px;
+      position: relative;
+      border: 3px solid green;
+    }
+
+    .center p {
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+    }
+  ```
+  - 垂直对齐Flexbox
+  ```css
+    .center {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 200px;
+      border: 3px solid green; 
+    }
+  ```
