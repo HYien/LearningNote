@@ -1153,3 +1153,282 @@ clear属性指定哪些元素可以浮动于被清除元素的旁边以及哪一
       border: 3px solid green; 
     }
   ```
+### CSS组合器
++ 后代选择器(空格)
+```css
+  div p {
+    background-color: yellow;
+  }
+```
++ 子选择器
+```css
+  div > p {
+    background-color: yellow;
+  }
+```
++ 相邻兄弟选择器(+)
+```css
+  div + p {
+    background-color: yellow;
+  }
+```
++ 通用兄弟选择器(~)
+```css
+  div ~ p {
+    background-color: yellow;
+  }
+```
+
+### CSS伪类
+伪类用于定义元素的特殊状态。
++ 设置鼠标悬停在元素上时的样式
++ 为已访问和未访问链接设置不同的样式
++ 设置元素获得焦点时的样式
+```css
+  /* 未访问的链接 */
+  a:link {
+    color: #FF0000;
+  }
+
+  /* 已访问的链接 */
+  a:visited {
+    color: #00FF00;
+  }
+
+  /* 鼠标悬停链接 */
+  a:hover {
+    color: #FF00FF;
+  }
+
+  /* 已选择的链接 */
+  a:active {
+    color: #0000FF;
+  }
+
+  div:hover {
+    background-color: blue;
+  }
+
+  /* 隐藏与hover显示 */
+  p {
+    display: none;
+    background-color: yellow;
+    padding: 20px;
+  }
+
+  div:hover p {
+    display: block;
+  }
+```
++ :first-child伪类
+```css
+  p:first-child {
+    color: blue;
+  }
+
+  p i:first-child {
+    color: blue;
+  }
+
+  p:first-child i {
+    color: blue;
+  }
+```
+
+### css伪元素
+伪元素用于设置元素指定部分的样式。
++ ::after
+::after 伪元素可用于在元素内容之后插入一些内容。
+```css
+  h1::after {
+    content: url(smiley.gif);
+  }
+```
++ ::before
+::before 伪元素可用于在元素内容之前插入一些内容。
+```css
+  h1::before {
+    content: url(smiley.gif);
+  }
+```
++ ::first-letter
+```css
+  p::first-letter {
+    color: #ff0000;
+    font-size: 200%;
+  }
+```
++ ::first-line
+```css
+  p::first-line {
+    color: #ff0000;
+    font-variant: small-caps;
+  }
+```
++ ::selection
+::selection 伪元素匹配用户选择的元素部分。
+```css
+  ::selection {
+    color: red;
+    background: yellow;
+  }
+```
+
+### CSS透明度
+opacity属性指定元素的透明度值。opacity 属性的取值范围为 0.0-1.0。值越低，越透明。
+```css
+  img {
+    opacity: 0.5;
+  }
+
+  img:hover {
+    opacity: 1.0;
+  }
+```
+
+### CSS导航栏
++ 垂直导航栏
+```html
+ <!DOCTYPE html>
+  <html>
+  <head>
+    <style>
+      ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        width:150px;
+        background: #f1f1f1;
+      }
+
+      ul li:hover {
+        background: #555;
+      }
+
+      ul li a {
+      	display: block;
+      	color: gray;
+        padding: 10px 10px;
+        text-decoration: none;
+      }
+
+      ul li.active a {
+        color: #fff;
+      }
+      ul li.active {
+        background: #4CAF50;
+      }
+    </style>
+  </head>
+  <body>
+  <ul>
+    <li class="active"><a href="#home">Home</a></li>
+    <li><a href="#news">News</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#about">About</a></li>
+  </ul>
+
+  <p>注释：我们将 href="#" 用于测试链接。在实际的网站中，用的是 URL。</p>
+
+  </body>
+  </html>
+```
++ 水平导航栏
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        background: #f1f1f1;
+      }
+      
+      .clearfix::after {
+        content: "";
+        clear: both;
+        display: table;
+      }
+		
+      ul li {
+      	float: left;
+      }
+      ul li:hover {
+        background: #555;
+      }
+
+      ul li a {
+      	display: inline-block;
+      	color: gray;
+        padding: 10px 10px;
+        text-decoration: none;
+      }
+
+      ul li.active a {
+        color: #fff;
+      }
+      ul li.active {
+        background: #4CAF50;
+      }
+    </style>
+  </head>
+<body>
+
+<ul class="clearfix">
+  <li class="active"><a href="#home">Home</a></li>
+  <li><a href="#news">News</a></li>
+  <li><a href="#contact">Contact</a></li>
+  <li><a href="#about">About</a></li>
+</ul>
+
+</body>
+</html>
+```
++ Flexbox水平导航
+```html
+  <!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      ul {
+      	display: flex;
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        background: #f1f1f1;
+      }
+      ul li:hover {
+        background: #555;
+      }
+
+      ul li a {
+      	display: inline-block;
+      	color: gray;
+        padding: 10px 10px;
+        text-decoration: none;
+      }
+
+      ul li.active a {
+        color: #fff;
+      }
+      ul li.active {
+        background: #4CAF50;
+      }
+    </style>
+  </head>
+<body>
+
+<ul class="clearfix">
+  <li class="active"><a href="#home">Home</a></li>
+  <li><a href="#news">News</a></li>
+  <li><a href="#contact">Contact</a></li>
+  <li><a href="#about">About</a></li>
+</ul>
+
+</body>
+</html>
+```
