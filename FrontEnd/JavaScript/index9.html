@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div id="a">
+    <div id="b">...</div>
+    <div id="c" style="transform: translate(0,0);"></div>
+  </div>
+  <div class="winter"></div>
+  <div class="winter"></div>
+  <div class="winter"></div>
+  <script>
+    document.getElementById("c").style.transform = "translate(100px,0)";
+    const collection = document.getElementsByClassName('winter')
+    console.log(collection.length)
+    const winterDiv = document.createElement('div')
+    winterDiv.setAttribute('class', 'winter')
+    document.documentElement.appendChild(winterDiv)
+    console.log(collection.length)
+    
+    // var iterator = document.createNodeIterator(document.body, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_COMMENT, null, false);
+    // var node;
+    // while(node = iterator.nextNode())
+    // {
+    //     console.log(node);
+    // }
+    
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, null, false)
+    var node;
+    while(node = walker.nextNode())
+    {
+        if(node.tagName === "p")
+            node.nextSibling();
+        console.log(node);
+    }
+    
+    // var range = new Range(),
+    //     firstText = p.childNodes[1],
+    //     secondText = em.firstChild
+    // range.setStart(firstText, 9) // do not forget the leading space
+    // range.setEnd(secondText, 4)
+
+    // var fragment = range.extractContents()
+    // range.insertNode(document.createTextNode("aaaa"))
+  </script>
+</body>
+</html>

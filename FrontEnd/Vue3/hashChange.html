@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hash 模式</title>
+</head>
+<body>
+  <div>
+    <ul>
+      <li><a href="#/page1">page1</a></li>
+      <li><a href="#/page2">page2</a></li>
+    </ul>
+    <div id="route-view"></div>
+  </div>
+  <script>
+    window.addEventListener('DOMContentLoaded',Load)
+    window.addEventListener('hashchange',HashChange)
+    var routeView = null
+    function Load() { 
+      routeView = document.getElementById('route-view')
+      HashChange()
+    }
+    function HashChange() {
+      switch(location.hash) {
+        case '#/page1':
+          routeView.innerHTML = 'page1'
+          break;
+        case '#/page2': 
+          routeView.innerHTML = 'page2'
+          break;
+        default: 
+          routeView.innerHTML = 'page1'
+          return
+      }
+    }
+  </script>
+</body>
+</html>

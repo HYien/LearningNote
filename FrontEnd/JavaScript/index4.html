@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    p.special::before {
+      display: block;
+      content: counter(chapno, upper-roman) ". ";
+    }
+    .inner {
+      width:33.33%; 
+      height:300px; 
+      display:inline-block; 
+      outline:solid 1px blue;
+    }
+    .outer {
+      font-size: 0;
+      /* width:101px; */
+    }
+    .inner:last-child { 
+      margin-right:-5px;
+    }
+  </style>
+</head>
+<body>
+  <p class="special">I'm real element.</p>
+  <map name="shapes">
+    <area shape=rect coords="50,50,100,100"> <!-- the hole in the red box -->
+  </map>
+  <div class="outer">
+    <div class="inner"></div>
+    <div class="inner"></div>
+    <div class="inner"></div>
+  </div>
+  <script>
+    let o = {
+      a: 1,
+      b: 2,
+      [Symbol.iterator]: () => ({
+        _value: 0,
+        next() {
+          if (this._value == 10) {
+            return {
+              done: true
+            }
+          } else {
+            return {
+              value: this._value++,
+              done: false
+            }
+          }
+           
+        }
+      })
+    }
+    for (let key of o) {
+      console.log(key)
+    }
+    function* foo() {
+      yield 0;
+      yield 1;
+      yield 2;
+      yield 3;
+    }
+    for(let e of foo()) {
+      console.log(e)
+    }
+
+    function sleep(duration) {
+      return new Promise((resolve, reject) => {
+        setTimeout(resolve,duration)
+      })
+    }
+    async function* foo2() {
+      i = 0;
+      while(true) {
+        await sleep(1000);
+        yield i++;
+      }
+    }
+
+    async function main() {
+      for await (let key of foo2()) {
+        console.log(key)
+      }
+    }
+    main()
+    // 交换a与b的值
+    let a = 102, b = 324;
+    a = a^b;
+    b = a^b;
+    a = a^b;
+    console.log(a,b)
+    console.log(false || 1)
+  </script>
+</body>
+</html> 

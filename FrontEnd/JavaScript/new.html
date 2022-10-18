@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    // new操作符做了什么
+    function Student(name) {
+      // console.log('赋值之前', this)
+      this.name = name
+      // console.log('赋值之后', this)
+    }
+    Student.prototype.callMyname = function() {
+      console.log(this.name)
+    }
+    var student = new Student()
+    console.log(student) // {}
+    console.log(Object.prototype.toString.call(student)) // [object Object]
+
+    // 1.创建了新对象
+    // 2.通过new创建的对象的[[prototype]]链接到构造函数的原型prototype上
+    // 3.新对象绑定函数调用的this
+    // 4.执行构造函数
+    // 5.如果构造函数没有返回对象类型，那么会自动返回新创建的对象
+    var obj = new Object()
+    console.log(obj) // {}
+    console.log(Object.prototype.toString.call(obj)) // [object Object]
+
+    console.log(typeof Student === 'function') // true
+    console.log(typeof Object === 'function') // true
+
+    console.log(student.constructor === Student)
+    console.log(Student.prototype.constructor === Student)
+
+
+    var student1 = new Student('张三')
+    var student2 = new Student('李四')
+    console.log(student1) 
+    student1.callMyname() // 张三
+    console.log(student2) 
+    student2.callMyname() // 李四
+    console.log(student1.__proto__ === Student.prototype) // true
+    console.log(student2.__proto__ === Student.prototype) // true
+    console.log(Object.getPrototypeOf(student1) === Student.prototype)
+    console.log(Object.getPrototypeOf(student2) === Student.prototype)
+    console.log(student1)
+
+    /**
+     * 模拟实现new操作符
+     * @param {Function} ctor [构造函数]
+     * @return {Object|Function|Regex|Date|Error}
+     */
+    function newOperator(ctor) {
+      if (typeof ctor !== 'function') {
+        throw 'newOperator function the first param must be a function';
+      }
+      newOperator.target = ctor;
+      var newObj = Object.create(ctor.prototype);
+      var argsArr = [].slice.call(arguments,1);
+      var ctorReturnResult = ctor.apply(newObj,argsArr);
+      var isObject = typeof ctorReturnResult === 'object' && ctorReturnResult !== null;
+      var isFunction = typeof ctorReturnResult === 'function'
+      if (isObject || isFunction) {
+        return ctorReturnResult
+      }
+      return newObj
+    }
+    var student3 = newOperator(Student, '王五');
+    console.log(student3)
+    student3.callMyname()
+  </script>
+</body>
+</html>

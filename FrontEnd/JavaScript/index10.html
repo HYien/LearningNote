@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <input id="i" type="button">
+  <script>
+    document.body.addEventListener('mousedown', () => {
+      console.log('key1')
+    },true)
+    document.getElementById('i').addEventListener('mousedown', () => {
+      console.log('key2')
+    },true)
+    document.body.addEventListener('mousedown', () => {
+      console.log('key11')
+    },false)
+    document.getElementById('i').addEventListener('mousedown', () => {
+      console.log('key22')
+    },false)
+    // 过滤JavaScript的属性
+    let js = new Set();
+    let objects = ["BigInt", "BigInt64Array", "BigUint64Array", "Infinity", "NaN", "undefined", "eval", "isFinite", "isNaN", "parseFloat", "parseInt", "decodeURI", "decodeURIComponent", "encodeURI", "encodeURIComponent", "Array", "Date", "RegExp", "Promise", "Proxy", "Map", "WeakMap", "Set", "WeakSet", "Function", "Boolean", "String", "Number", "Symbol", "Object", "Error", "EvalError", "RangeError", "ReferenceError", "SyntaxError", "TypeError", "URIError", "ArrayBuffer", "SharedArrayBuffer", "DataView", "Float32Array", "Float64Array", "Int8Array", "Int16Array", "Int32Array", "Uint8Array", "Uint16Array", "Uint32Array", "Uint8ClampedArray", "Atomics", "JSON", "Math", "Reflect", "escape", "unescape"]; objects.forEach(o => js.add(o)); 
+    let names = Object.getOwnPropertyNames(window);
+    names = names.filter(e => !js.has(e));
+    console.log(names)
+    names = names.filter( e => { try { return !(window[e].prototype instanceof Node) } catch(err) { return true; } }).filter( e => e != "Node")
+    console.log(names)
+    let windowprops = new Set(); 
+    objects = ["window", "self", "document", "name", "location", "history", "customElements", "locationbar", "menubar", " personalbar", "scrollbars", "statusbar", "toolbar", "status", "close", "closed", "stop", "focus", " blur", "frames", "length", "top", "opener", "parent", "frameElement", "open", "navigator", "applicationCache", "alert", "confirm", "prompt", "print", "postMessage", "console"]; 
+    objects.forEach(o => windowprops.add(o)); 
+    names = names.filter(e => !windowprops.has(e));
+    console.log(names)
+    names = names.filter( e => !e.match(/^on/))
+    names = names.filter( e => !e.match(/^webkit/))
+    
+    let interfaces = new Set();
+    objects = ["ApplicationCache", "AudioTrack", "AudioTrackList", "BarProp", "BeforeUnloadEvent", "BroadcastChannel", "CanvasGradient", "CanvasPattern", "CanvasRenderingContext2D", "CloseEvent", "CustomElementRegistry", "DOMStringList", "DOMStringMap", "DataTransfer", "DataTransferItem", "DataTransferItemList", "DedicatedWorkerGlobalScope", "Document", "DragEvent", "ErrorEvent", "EventSource", "External", "FormDataEvent", "HTMLAllCollection", "HashChangeEvent", "History", "ImageBitmap", "ImageBitmapRenderingContext", "ImageData", "Location", "MediaError", "MessageChannel", "MessageEvent", "MessagePort", "MimeType", "MimeTypeArray", "Navigator", "OffscreenCanvas", "OffscreenCanvasRenderingContext2D", "PageTransitionEvent", "Path2D", "Plugin", "PluginArray", "PopStateEvent", "PromiseRejectionEvent", "RadioNodeList", "SharedWorker", "SharedWorkerGlobalScope", "Storage", "StorageEvent", "TextMetrics", "TextTrack", "TextTrackCue", "TextTrackCueList", "TextTrackList", "TimeRanges", "TrackEvent", "ValidityState", "VideoTrack", "VideoTrackList", "WebSocket", "Window", "Worker", "WorkerGlobalScope", "WorkerLocation", "WorkerNavigator"];
+    objects.forEach(o => interfaces.add(o));
+
+    names = names.filter(e => !interfaces.has(e));
+    console.log(names)
+
+    
+  function atoi(a){
+      let chars = a.split("").map(e => e.charCodeAt(0) - "0".charCodeAt(0));
+      console.log(chars)
+      let n = 0;
+      for(var char of chars) {
+          n *= 10;
+        n += char;
+      }
+      return n;
+  }
+  
+  console.log(atoi("1001"))
+
+  function Point(x,y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  Point.prototype.toString = function() {
+    return this.x + ',' + this.y
+  }
+
+  var p = new Point(1,2);
+  p.toString(); // '1,2'
+
+  console.log(p.toString())
+  var emptyObj = {}
+
+  var YAxisPoint = Point.bind(emptyObj,0)
+  console.log(new YAxisPoint(5).toString())
+  </script>
+  <script>
+    class ArrayStack {
+      constructor() {
+        this.items = []
+      }
+      push(item) {
+        this.items.push(item)
+      }
+      pop() {
+        return this.items.pop()
+      }
+      clear() {
+        this.items = []
+      }
+    }
+
+    const stack = new ArrayStack()
+    stack.push(2)
+    console.log(stack.pop())
+    console.log(stack)
+    class ArrayQueue {
+      constructor() {
+        this.items = []
+      }
+      enqueue(item) {
+        this.items.push(item)
+      }
+      dequeue() {
+        return this.items.shift()
+      }
+    }
+    const queue = new ArrayQueue() 
+    queue.enqueue('李想')
+    console.log(queue)
+    console.log(queue.dequeue())
+  </script>
+</body>
+</html>

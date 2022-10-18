@@ -65,19 +65,40 @@
 
 + new操作符可以构建一个新实例，并且绑定上this,内部执行步骤大概可以分为以下几步
   + 新生成了一个对象
-  + 对象连接到构造函数原型上，并绑定this
+  + 对象原型连接到构造函数原型上，并绑定this
   + 执行构造函数代码
-  + 返回新对象
+  + 如果构造函数不返回对象，则返回新对象
 
 + 实现new
 ~~~javascript
-  function _new() {
+  // 第一种实现方式
+  // 第一个参数为构造函数
+  function _new1() {
     var obj = {}
     var constructorFunc = [].shift.call(arguments)
+    if (typeof constructorFunc !== 'function') {
+      throw 'new funcction the first param must be a function.'
+    }
     obj.__proto__ = constructorFunc.prototype
     var params = arguments
     var res = constructorFunc.apply(obj,params)
     return res instanceof Object ? res : obj
+  }
+
+  function _new2(ctor) {
+    if (typeof ctor !== 'function') {
+      return throw 'new funcction the first param must be a function.'
+    }
+    // 1.创建新对象将对象链接到构造函数原型
+    var obj = Object.create(ctor.prototype)
+    // 2.获取构造函数的传入的参数
+    var argsArr = [].slice.call(arguments,1)
+    // 3.执行构造函数并绑定this
+    var ctorRes = ctor.apply(obj,argsArr)
+    var isObject = typeof ctorRes === 'object' && ctorRes !== null
+    var isFunction = typeof ctorRes === 'function'
+    // 4.如果执行构造函数返回值为对象,则返回对象,否则返回新创建的对象
+    return (isObject || isFunction) ? ctorRes : obj
   }
 ~~~
 

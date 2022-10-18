@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    const array = Array(5).fill('')
+    //输出 ["", "", "", "", ""]
+    console.log(array)
+  
+    const matrix = Array(5).fill(0).map(() => Array(5).fill(0))
+    console.log(matrix)
+    //输出[[0, 0, 0, 0, 0],[0, 0, 0, 0, 0],[0, 0, 0, 0, 0],[0, 0, 0, 0, 0],[0, 0, 0, 0, 0]]
+
+
+    // 数组求和
+    const array1 = [5,4,7,8,9,2]
+
+    const sum = array1.reduce((a, b) => a + b)
+    console.log(sum)
+    // 输出 35
+
+    // 求数组中的最大值
+    const max = array1.reduce((a, b) => a > b ? a :b)
+    console.log(max)
+    // 求数组中的最小值
+    const min = array1.reduce((a, b) => a < b ? a : b)
+    console.log(min)
+
+    const stringArr = ["Joe", "Kapil", "Steve", "Musk"]
+    const sortArr = stringArr.sort()
+    console.log(sortArr)
+    // 输出 ["Joe", "Kapil", "Musk", "Steve"]
+    
+    const reverseArr = stringArr.reverse()
+    console.log(reverseArr)
+    // 输出 ["Steve", "Musk", "Kapil", "Joe"]
+
+    const numArray = [40, 100, 1, 5, 25, 10]
+    const sortArray1 = numArray.sort((a,b) => a-b)
+    console.log(sortArray1)
+    const sortArray2 = numArray.sort((a,b) => b-a)
+    console.log(sortArray2)
+    //对象数组排序
+    const objectArr = [
+      { first_name: 'Lazslo', last_name: 'Jamf'     },
+      { first_name: 'Pig',    last_name: 'Bodine'   },
+      { first_name: 'Pirate', last_name: 'Prentice' }
+    ]
+    const sortedObectArr = objectArr.sort((a,b) => a.last_name.localeCompare(b.last_name))
+    console.log(sortedObectArr)
+    const array2 = [3, 0, 6, 7, '', false]
+    const filterArr = array2.filter(Boolean)
+    console.log(filterArr) // [3, 6, 7]
+  </script>
+  <!-- <script src="./object.js"></script> -->
+  <script src="./closure.js"></script>
+  <script src="./function.js"></script>
+</body>
+</html>
