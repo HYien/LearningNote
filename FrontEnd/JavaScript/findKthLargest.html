@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    const arr1 = [6, 1, 3, 5, 7]
+    // 7 6 5 3 1
+    function findKthLargest(arr,k) {
+      if (arr.length <= 1) {
+        return arr[0]
+      }
+      let left = []
+      let right = []
+      const pivot = arr[0]
+      for(let i = 1; i < arr.length; i++) {
+        if (arr[i] > pivot) {
+          left.push(arr[i])
+        } else {
+          right.push(arr[i])
+        }
+      }
+      // pivot的索引值
+      const p = left.length 
+      if (k-1 === p) {
+        return pivot
+      } 
+      if (k > p + 1) {
+        k = k - p - 1
+        return findKthLargest(right,k)
+      } else {
+        if (k > left.length) {
+          k = k - left.length 
+        }
+        left = [...left,pivot]
+        return findKthLargest(left,k)
+      }
+    }
+    const kTh = findKthLargest(arr1,5)
+    console.log(kTh)
+  </script>
+</body>
+</html>

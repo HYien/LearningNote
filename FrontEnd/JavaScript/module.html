@@ -10,6 +10,57 @@
   <script type="module">
     import { name } from './foo.js'
     console.log(name)
+    const arr = [6,5,4,3,2,1]
+    // function mergeSort(a) {
+    //   const n = a.length
+    //   if (n === 1) {
+    //     return a
+    //   }
+    //   const mid = Math.floor(n/2)
+    //   const leftA = a.slice(0,mid)
+    //   const rightA = a.slice(mid,n)
+    //   return merge(mergeSort(leftA),mergeSort(rightA))
+    // }
+    // function merge(leftA,rightA) {
+    //   const temp = [];
+    //   let i = 0;
+    //   let j = 0;
+    //   while(i < leftA.length && j < rightA.length) {
+    //     if (leftA[i] <= rightA[j]) {
+    //       temp.push(leftA[i++])
+    //     } else {
+    //       temp.push(rightA[j++])
+    //     }
+    //   }
+    //   while(i < leftA.length) {
+    //     temp.push(leftA[i++])
+    //   }
+
+    //   while(j < rightA.length) {
+    //     temp.push(rightA[j++])
+    //   }
+    //   return temp
+    // }
+    // console.log(mergeSort(arr))
+    function quickSort(arr) {
+      if (arr.length <= 1) {
+        return arr
+      }
+      let left = []
+      let right = []
+      for(let i = 1; i < arr.length; i++) {
+        if (arr[i] < arr[0]) {
+          left.push(arr[i])
+        } else {
+          right.push(arr[i])
+        }
+      }
+      left = quickSort(left)
+      right = quickSort(right)
+      left = [...left, arr[0]]
+      return [...left,...right]
+    }
+    console.log(quickSort(arr))
   </script>
 </body>
 </html>
