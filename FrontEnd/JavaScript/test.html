@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    let m = 90901
+    function fun(m) {
+      let a = m.toString().split('')
+      a = a.sort()
+      if (a.length > 1 && a[0] === '0') {
+        const index = a.findIndex(ele => ele != '0') 
+        if (index > -1) {
+          const temp = a[0]
+          a[0] = a[index]
+          a[index] = temp
+        }
+      }
+      let n = ''
+      a.forEach(element => {
+        n += element
+      })
+      console.log(n)
+      a.join('')
+      return n
+    }
+    fun(m)
+    function fun1(m) {
+      let tem = '1'
+      let a = m.toString().split('')
+      let len = a.length
+      tem.padEnd(5,'0')
+      return tem
+    }
+    console.log(fun1(90901))
+
+
+    const a = [3,5,9,19,88]
+    // console.log(bsearch(a,19))
+
+    function bsearch2(a,value,low,high) {
+      if (!Array.isArray(a)) {
+        return
+      }
+      if (low > high) {
+        return -1
+      }
+      let mid = low + ((high - low) >> 1)
+      if (a[mid] === value) {
+        return mid
+      } else if(a[mid] > value) {
+        high = mid - 1
+        return bsearch2(a,value,low,high)
+      } else {
+        low = mid + 1
+        return bsearch2(a,value,low,high)
+      }
+    }
+
+    console.log(bsearch2(a,9,0,a.length-1))
+
+    function sqrt(x) {
+      if (isNaN(x)) return NaN
+      if (x === 0 || x === 1) {
+        return x
+      }
+      let low = 0;
+      let high = x;
+      let pivot = (low + high)/2;
+      let lastPivot = 0
+      while(Math.abs(pivot - lastPivot) >= 0.000001) {
+        if (Math.pow(pivot,2) > x) {
+          high = pivot
+        } else if(Math.pow(pivot,2) < x) {
+          low = pivot
+        } else {
+          return pivot
+        }
+        lastPivot = pivot
+        pivot = (low + high) / 2
+      }
+      return pivot
+    }
+    console.log(sqrt(4.5))
+  </script>
+</body>
+</html>
