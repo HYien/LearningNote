@@ -112,6 +112,70 @@
       border-bottom-left-radius: 40px;
       border-bottom-right-radius: 40px;
     }
+
+    /* 饼图 */
+    .pie {
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      border: 75px solid;
+      border-color: #3c7 #3c7 #37c #37c;
+      box-sizing: border-box;
+      transform: rotate(45deg);
+    }
+
+    .pie span {
+      font-size: 1rem;
+      position: absolute;
+      color: #fff;
+      transform: translate(-50%, -50%) rotate(-45deg);
+    }
+
+    .pie::before {
+      display: inline-block;
+      width: 0;
+      border-radius: 50%;
+      font-size: 0; /* 防止空白符 */
+    }
+
+    .pie::before {
+      content: '';
+      position: absolute;
+      border: 75px solid;
+      border-color: #37c #37c transparent transparent;
+      transform: translate(-50%, -50%) rotate(.0turn);
+      animation: spine 10s linear infinite,
+        convex 10s step-end infinite;
+      animation-play-state: paused;
+      animation-delay: inherit;
+    }
+
+    @keyframes spine {
+      to { transform: translate(-50%, -50%) rotate(1turn);}
+    }
+
+    @keyframes convex {
+      50% { border-color: transparent transparent #3c7 #3c7;}
+    }
+
+    .pie.one::before {
+      transform: translate(-50%, -50%) rotate((.1turn));
+    }
+    
+    .pie.two::before {
+      transform: translate(-50%, -50%) rotate(.25turn);
+    }
+    .pie.three::before {
+      transform: translate(-50%, -50%) rotate(.5turn);
+    }
+    .pie.convex::before {
+      border-color: transparent transparent #3c7 #3c7;
+    }
+
+    .pie.four::before {
+      transform: translate(-50%, -50%) rotate(.8turn);
+    }
   </style>
 </head>
 <body>
@@ -145,10 +209,33 @@
       }
     })
   </script>
-  <div id="block">
-  </div>
+  <!-- 三角形 -->
+  <div id="block"></div>
+  <!-- 星星 -->
   <div class="icon star"></div>
+  <!-- 箭头 -->
   <div class="icon arrow"></div>
+  <!-- 吃豆人 -->
   <div class="icon pacman"></div>
+
+  <!-- pie图 -->
+  <div class="pie one"></div>
+  <div class="pie two"></div>
+  <div class="pie three"></div>
+  <div class="pie convex four"></div>
+  
+  <!-- pie图动态 -->
+  <div class="pie" style="animation-delay: -1s;">
+    <span>10%</span>
+  </div>
+  <div class="pie" style="animation-delay: -2.5s;">
+    <span>25%</span>
+  </div>
+  <div class="pie" style="animation-delay: -5s;">
+    <span>50%</span>
+  </div>
+  <div class="pie" style="animation-delay: -8s;">
+    <span>80%</span>
+  </div>
 </body>
 </html>

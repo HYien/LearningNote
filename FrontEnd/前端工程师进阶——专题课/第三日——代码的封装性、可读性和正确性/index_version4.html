@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>函数的正确性和效率-洗牌</title>
+</head>
+<body>
+  <script>
+    // 随机洗牌抽奖
+    function shuffle(items) {
+      items = [...items]
+      const ret = []
+      while(items.length) {
+        const idx = Math.floor(Math.random() * items.length);
+        const item = items.splice(idx, 1)[0]
+        ret.push(item)
+      }
+      return ret
+    }
+    let items = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    // items = shuffle(items)
+    // console.log(items)
+
+    // 效率优化
+    function shuffle1(items) {
+      items = [...items]
+      for(let i = items.length; i > 0; i--) {
+        const idx = Math.floor(Math.random() * i);
+        [items[idx], items[i - 1]] = [items[i - 1], items[idx]];
+      }
+      return items
+    }
+    // items = shuffle1(items)
+    // console.log(items)
+
+    // 抽奖次数限制，生成器函数
+    function* shuffleGen(items) {
+      items = [...items]
+      for(let i = items.length; i > 0; i--) {
+        const idx = Math.floor(Math.random() * i);
+        [items[idx], items[i - 1]] = [items[i - 1], items[idx]];
+        yield items[i - 1]
+      }
+    }
+    items = shuffleGen(items);
+    console.log(...items);
+    let itemsArr = [...new Array(100).keys()];
+    let n = 1;
+    // 100个号随机抽取5个
+    for (let item of shuffleGen(itemsArr)) {
+      console.log(item)
+      if(n++ >= 5) break;
+    }
+  </script>
+</body>
+</html>
