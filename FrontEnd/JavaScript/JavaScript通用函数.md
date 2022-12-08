@@ -47,3 +47,91 @@
       }
     }
 ```
+
+### 4.intercet拦截器函数
+```javascript
+  function intercept(fn, {beforeCall = null, afterCall = null}) {
+    return function (...args) {
+      if (!beforeCall || beforeCall.call(this, args) !== false) {
+        const ret = fn.apply(this, args)
+        if (afterCall) return afterCall.call(this, ret)
+        return ret
+      }
+    }
+  }
+```
+
+### 5.deprecate接口更新提示函数
+```javascript
+  function deprecate(fn, oldApi, newApi) {
+    const message = `The ${oldApi} is deprecated.
+      Please use the ${newApi} instead.`
+      return function (...args) {
+        console.warn(message)
+        return fn.apply(this, args)
+      }
+  }
+```
+
+### 6.batch批量处理的纯函数
+```javascript
+  function batch(fn) {
+    return function(subject, ...args) {
+      if (Array.isArray(subject)) {
+        return subject.map(s => {
+          return fn.call(this, s, ...args)
+        })
+      }
+      return fn.call(this, subject, ...args)
+    }
+  }
+```
+
+### 7.高阶函数的范式
+```javascript
+  function HOF0(fn) {
+    return function(...args) {
+      return fn.apply(this, args)
+    }
+  }
+```
+
+### 8.连续执行的函数
+```javascript
+  function continous(reducer) {
+    return function(...args) {
+      return args.reduce((a,b) => reducer(a, b))
+    }
+  }
+```
+
+### 9.fold折叠函数
+```javascript 
+  function fold(fn) {
+    return function (...args) {
+      const lastArg = args[args.length - 1];
+      if (lastArg.length) {
+        return fn.call(this, ...args.slice(0, -1), ...lastArg)
+      }
+      return fn.call(this, ...args)
+    }
+  }
+```
+
+### 10.reverse反转函数
+```javascript
+  function reverse(fn) {
+    return function(...args) {
+      return fn.apply(this, args.reverse())
+    }
+  }
+```
+
+### 11.spread函数
+```javascript
+  function spread(fn) {
+    return function (first, ...rest) {
+      return fn.call(this, first, rest)
+    }
+  }
+```

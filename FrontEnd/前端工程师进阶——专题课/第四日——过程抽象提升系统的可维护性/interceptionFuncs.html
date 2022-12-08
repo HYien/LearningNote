@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>函数拦截器</title>
+</head>
+<body>
+  <script>
+    // 旧api即将废弃，提示之后使用新的api
+    function deprecate(fn, oldApi, newApi) {
+      const message = `The ${oldApi} is deprecated.
+        Please use the ${newApi} instead.`
+      const notice = once(console.warn)
+
+      return function (...args) {
+        notice(message)
+        return fn.apply(this, args)
+      }
+    }
+
+    // 通用函数拦截器
+    function intercept(fn, {beforeCall = null, afterCall = null}) {
+      return function (...args) {
+        if (!beforeCall || beforeCall.call(this, args) !== false) {
+          const ret = fn.apply(this, args);
+          if (afterCall) return afterCall.call(this, ret);
+          return ret
+        }
+      }
+    }
+
+    // intercept用途
+    // 1.监控一个函数的执行过程
+    function sum(...list) {
+      return list.reduce((a, b) => a + b)
+    }
+
+    sum = intercept(sum, {
+      beforeCall(args) {
+        console.log(`The argument is ${args}`);
+        console.time('sum');
+      },
+      afterCall(ret) {
+        console.log(`The result is ${ret}`);
+        console.timeEnd('sum')
+      }
+    })
+
+    sum(1, 2, 3, 4, 5)
+
+    // 2.调整参数顺序
+    const mySetTimeout = intercept(setTimeout, {
+      beforeCall(args) {
+        [args[0], args[1]] = [args[1], args[0]]
+      }
+    })
+
+    mySetTimeout(1000, () => {
+      console.log('done')
+    })
+
+    // 校验函数的参数类型
+    function foo(str, str1) {
+    }
+
+    const foo = intercept(foo, {
+      beforeCall(args) {
+        assert(typeof args[1] === 'string')
+      }
+    })
+    
+
+    // once函数
+    function once(fn, replacer = null) {
+      return function (...args) {
+        if (fn) {
+          const ret = fn.apply(this, args)
+          fn = null;
+          return ret
+        }
+
+        if (replacer) {
+          return replacer.apply(this, args)
+        }
+      }
+    }
+  </script>
+</body>
+</html>

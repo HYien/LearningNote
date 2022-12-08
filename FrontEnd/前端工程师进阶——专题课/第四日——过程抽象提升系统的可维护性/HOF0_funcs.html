@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>函数的“纯度”、可测试性和可维护性</title>
+</head>
+<body>
+  <ul>
+    <li>1</li>
+    <li>2</li>
+    <li>3</li>
+    <li>4</li>
+    <li>5</li>
+    <li>6</li>
+    <li>7</li>
+  </ul>
+  <script>
+    // 批量调用函数
+    function  batch(fn) {
+      return function(subject, ...args) {
+        if (Array.isArray(subject)) {
+          return subject.map(s => {
+            return fn.call(this, s, ...args)
+          })
+        }
+
+        return fn.call(this, subject, ...args)
+      }
+    }
+
+    // const setStyle = batch((el, key, value) => {
+    //   el.style[key] = value
+    // })
+
+    // const items = document.querySelectorAll('li:nth-child(2n+1)')
+    // setStyle([...items], 'color', 'red')
+
+    const list = [1, 2, 3, 4]
+    const double = batch(num => num * 2)
+    console.log(double(list))
+
+    function continous(reducer) {
+      return function(...args) {
+        return args.reduce((a,b) => reducer(a, b))
+      }
+    }
+
+    const add = continous((a, b) => a + b)
+    console.log(add(1, 2, 3, 4, 5))
+    const multiply = continous((a, b) => a * b)
+    console.log(multiply(1, 2, 3, 4, 5))
+
+    
+    // const setStyle = continous(([key,value],el) => {
+    //   el.style[key] = value
+    //   return [key, value];
+    // })
+    // const items = document.querySelectorAll('li:nth-child(2n+1)')
+    // setStyle(['color', 'red'], ...items)
+
+    function fold(fn) {
+      return function (...args) {
+        const lastArg = args[args.length - 1];
+        if (lastArg.length) {
+          return fn.call(this, ...args.slice(0, -1), ...lastArg);
+        }
+        return fn.call(this, ...args)
+      }
+    }
+
+    // const setStyle = fold(continous(([key,value],el) => {
+    //   el.style[key] = value
+    //   return [key, value];
+    // }))
+    // const items = document.querySelectorAll('li:nth-child(2n+1)')
+    // setStyle(['color', 'red'],items)
+
+    function reverse(fn) {
+      return function(...args) {
+        return fn.apply(this, args.reverse())
+      }
+    }
+
+    // const setStyle = reverse(fold(continous(([key,value],el) => {
+    //   el.style[key] = value
+    //   return [key, value];
+    // })))
+    // const items = document.querySelectorAll('li:nth-child(2n+1)')
+    // setStyle(items, ['color', 'red'])
+
+    function spread(fn) {
+      return function (first, ...rest) {
+        return fn.call(this, first, rest)
+      }
+    }
+
+    const setStyle = spread(reverse(fold(continous(([key,value],el) => {
+      el.style[key] = value
+      return [key, value];
+    }))))
+
+    const items = document.querySelectorAll('li:nth-child(2n+1)')
+    setStyle(items, 'color', 'red')
+
+    function pipe(...fns) {
+      return function (input) {
+        return fns.reduce((a, b) => {
+          return b.call(this, a)
+        }, input)
+      }
+    }
+
+    const double1 = (x) => x * 2
+    const half = (x) => x / 2
+    const pow2 = (x) => x ** 2
+
+    const calc = pipe(double1, pow2, half)
+    const result = calc(10)
+    console.log(result)
+  </script>
+</body>
+</html>
