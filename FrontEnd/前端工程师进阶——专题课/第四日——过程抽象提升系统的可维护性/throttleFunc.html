@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>throttle——节流函数</title>
+  <style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      margin: 0;
+    }
+
+    #panel {
+      display: inline-block;
+      width: 360px;
+      height: 360px;
+      background: hsl(0, 50%, 50%);
+    }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+  <script>
+    // 根据移动的坐标，改变背景色
+    // const panel = document.getElementById('panel');
+    // panel.addEventListener('mousemove', e => {
+    //   const {x, y} = e
+    //   e.target.style.background = `linear-gradient(${y}deg, 
+    //     hsl(0, 50%, 50%), 
+    //     hsl(${0.5 * x}, 50%, 50%))`
+    // })
+
+    // 节流函数
+    function throttle(fn, ms = 100) {
+      let throttleTimer = null
+      return function(...args) {
+        if (!throttleTimer) {
+          const ret = fn.apply(this, args)
+          throttleTimer = setTimeout(() => {
+            throttleTimer = null
+          }, ms)
+          return ret
+        }
+      }
+    }
+
+    // 可以使用节流函数包装成once函数
+    function once(fn) {
+      return throttle(fn, Infinity)
+    }
+
+    // 如果需要向后台传输数据，用节流函数包装不频繁向后台发送数据
+    const panel = document.getElementById('panel');
+    panel.addEventListener('mousemove', throttle(e => {
+      const {x, y} = e
+      e.target.style.background = `linear-gradient(${y}deg, 
+        hsl(0, 50%, 50%), 
+        hsl(${0.5 * x}, 50%, 50%))`
+    }))
+  </script>
+</body>
+</html>
