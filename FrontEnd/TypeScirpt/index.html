@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <input type="text" id="inputTest">
+  <button id="submit">提交</button>
+  <script>
+    let a = () => {
+      setTimeout(() => {
+        console.log('任务队列函数1')
+      }, 0)
+      for (let i = 0; i < 5000; i++) {
+        console.log('a的for循环')
+      }
+      console.log('a事件执行完')
+    }
+    let b = () => {
+      setTimeout(() => {
+        console.log('任务队列函数2')
+      }, 0)
+      for (let i = 0; i < 5000; i++) {
+        console.log('b的for循环')
+      }
+      console.log('b事件执行完')
+    }
+    let c = () => {
+      setTimeout(() => {
+        console.log('任务队列函数3')
+      }, 0)
+      for (let i = 0; i < 5000; i++) {
+        console.log('c的for循环')
+      }
+      console.log('c事件执行完')
+    }
+    a();
+    b();
+    c();
+    const inputDiv = document.getElementById('inputTest')
+    const submitBtn = document.getElementById('submit')
+    submitBtn.onclick = function(e) {
+      const value = inputDiv.value
+      // var addressReg = /[^u4e00-u9fa5w]/g
+      var addressReg = /^[\A-Za-z0-9\u00B7\u3007\u3400-\u4DBF\u4E00-\u9FFF\uE000-\uF8FF\uD840-\uD8C0\uDC00-\uDFFF\uF900-\uFAFF\-]+$/
+      if (addressReg.test(value)) {
+        console.log('通过')
+      } else {
+        alert('输入的详细地址含有特殊字符，请重新输入！')
+      }
+    }
+  </script>
+</body>
+</html>
