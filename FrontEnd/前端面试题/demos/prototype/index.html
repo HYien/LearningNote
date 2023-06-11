@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    const instance = new Object()
+    const prototype = Object.prototype
+    console.log(instance.__proto__ === prototype) // true
+    console.log(prototype.constructor === Object) // true
+    console.log(prototype.constructor.prototype === prototype) // true
+    console.log(prototype.__proto__ === null) // true
+    console.log(Object.prototype.__proto__  === null) // true
+  </script>
+</body>
+</html>
