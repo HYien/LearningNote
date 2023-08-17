@@ -52,6 +52,18 @@
   console.log(sortedObectArr)
   //
 ```
+4.根据真假值排序
+```javascript
+  const users = [
+    { "name": "john", "subscribed": false },
+    { "name": "jane", "subscribed": true },
+    { "name": "jean", "subscribed": false },
+    { "name": "george", "subscribed": true },
+    { "name": "jelly", "subscribed": true },
+    { "name": "john", "subscribed": false }
+  ]
+  const subscribedUsersFirst = users.sort((a, b) => Number(b.subscribed) - Number(a.subscribed))
+```
 
 ### 4.从数组中过滤出虚假值
 ```javascript
@@ -112,4 +124,131 @@
   //输出
   Fever(97) // 'Take Some Rest!
   Fever(100) // 'Visit Doctor!
+```
+
+### 9.通过内置数据结构Set自身特性进行去重
+```javascript
+  function arr = [1, 2, 2, 3, 4]
+  const uniqueArr = Array.from(new Set(arr))
+  const uniqueArr2 = [...new Set(arr)]
+```
+
+### 10.通过遍历并判断是否存在进行去重
+```javascript
+  const arr = [1, 2, 2, 3, 4]
+  const uniqueArr = []
+  arr.forEach(item => {
+    if (uniqueArr.indexOf(item) === -1) {
+      uniqueArr.push(item)
+    }
+  })
+```
+
+### 11.通过fromEntries转换数组为对象
+```javascript
+  const entryArr = [
+    ['key1', 'value1'],
+    ['key2', 'value2'],
+    ['key3', 'value3']
+  ]
+  const originalObj = Object.fromEntries(entryArr)
+  console.log(originalObj)
+  // {key1: 'value1', key2: 'value2', key3: 'value3'}
+```
+
+### 12.基于默认值的对象赋值
+```javascript
+  function fn(setupData) {
+    const defaultSetup = {
+      email: "justin3go@qq.com",
+      userId: "justin3go",
+      skill: "code",
+      work: "student"
+    }
+    return { ...defaultSetup, ...setupData }
+  }
+
+  const testSetData = { skill: 'sing' }
+  console.log(fn(testSetData))
+  // { email: "justin3go@qq.com", userId: "justin3go", skill: "sing", work: "student" }
+```
+
+### 13.多重条件去重判断优化
+```javascript
+  if (condition === '1' || condition === '2' || condition === '3') {
+
+  }
+
+  // 优化
+  const someConditions = ['1', '2', '3']
+  if (someConditions.includes(condition)) {
+
+  }
+```
+
+### 14.交换两个变量的值
+```javascript
+  let a = 1;
+  let b = 2;
+  [a, b] = [b, a]
+```
+
+### 15.位运算
+```javascript
+// 偶数 & 1 = 0
+// 奇数 & 1 = 1
+console.log(2 & 1) // 0
+console.log(3 & 1) // 1
+```
+
+### 16.使用~,>>,<<,>>>,|来取整
+```javascript
+  console.log(~~ 6.83)    // 6
+  console.log(6.83 >> 0)  // 6
+  console.log(6.83 << 0)  // 6
+  console.log(6.83 | 0)   // 6
+  // >>>不可对负数取整
+  console.log(6.83 >>> 0)   // 6
+```
+
+### 17.使用^来完成值交换
+```javascript
+  var a = 5
+  var b = 8
+  a ^= b
+  b ^= a
+  a ^= b
+  console.log(a)   // 8
+  console.log(b)   // 5
+```
+
+### 18.通过&,>>,|来完成rgb值和16进制颜色值之间的转换
+```javascript
+  /**
+ * 16进制颜色值转RGB
+ * @param  {String} hex 16进制颜色字符串
+ * @return {String}     RGB颜色字符串
+ */
+  function hexToRGB(hex) {
+    var hexx = hex.replace('#', '0x')
+    var r = hexx >> 16
+    var g = hexx >> 8 & 0xff
+    var b = hexx & 0xff
+    return `rgb(${r}, ${g}, ${b})`
+}
+
+/**
+ * RGB颜色转16进制颜色
+ * @param  {String} rgb RGB进制颜色字符串
+ * @return {String}     16进制颜色字符串
+ */
+function RGBToHex(rgb) {
+    var rgbArr = rgb.split(/[^\d]+/)
+    var color = rgbArr[1]<<16 | rgbArr[2]<<8 | rgbArr[3]
+    return '#'+ color.toString(16)
+}
+// -------------------------------------------------
+hexToRGB('#ffffff')               // 'rgb(255,255,255)'
+RGBToHex('rgb(255,255,255)')      // '#ffffff'
+
 ```
