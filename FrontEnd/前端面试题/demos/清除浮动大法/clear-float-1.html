@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>最后一个子类设置清除浮动</title>
+  <style>
+    .content {
+      background-color: rgba(102, 102, 102, 0.35);
+    }
+    h1, p {
+      float:left;
+    }
+    p {
+      margin-top: 1rem;
+      font-size: 1rem;
+    }
+    .clear-float {
+      clear: both;
+    }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <h1>沉默的大多数</h1>
+    <p>  我现在写的东西大体属于文学的范畴，所谓文学，在我看来就是：先把文章写好看了再说，别的就不用管他妈的。除了文学，
+        我想不到有什么地方可以接受我这些古怪想法。赖在文学上，可以给自己在圈子中找到一个立脚点。有这样一个立脚点，就可以攻击这个圈子，攻击整个阳的世界。</p>
+    <p>几年前，我在美国读书。有个洋鬼子这样问我们：你们中国那个阴阳学说，怎么一切好的东西都属阳，一点不给阴剩下？当然，她这样发问，是因为她正是一个五体不全之阴人。但是这话也有些道理。话语权属于阳的一方，它当然不会说阴的一方任何好话。就是夫子也未能免俗，他把妇女和小人攻击了一通。这句话几千年来总被人引用，但我就没听到受攻击一方有任何回应。人们只是小心提防着不要做小人，
+        至于怎样不做妇人，这问题一直没有解决。就是到了现代，女变男的变性手术也是一个难题，而且也不宜推广——这世界上假男人太多，真男人就会找不到老婆。</p>
+      <!-- 清除浮动 -->
+    <div class="clear-float"></div>
+  </div>
+
+</body>
+</html>
