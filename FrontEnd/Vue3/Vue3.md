@@ -1,3 +1,11 @@
+### Vue3的变化
++ 性能的提升
+  + 打包体积变小
+  + 首次渲染更快
+  + diff算法更快
+  + 内存使用更小
++ Composition API
++ 更好的TypeScript
 ### 初始项目
 #### CDN模式
 引入静态资源CDN模式
@@ -66,3 +74,23 @@
   npm run dev (or `yarn dev`)
 ```
 ![](images/vue3%E5%90%AF%E5%8A%A8.png)
+#### Setup方法
+使用Composition API
+
+#### Vue3的性能优化
++ 虚拟DOM性能优化
+  + PatchFlag(静态标记)
+    Vue3,对diff算法进行了优化，在创建虚拟DOM时，根据DOM的内容，给予会发生变化的类型进行静态标记（PatchFlag);而Vue2是进行了全量的比较
+  + HoistStatic(静态提升)
+  + cacheHandler(事件监听缓存)
+  + StaticNode(静态节点)
+  + Tree-shaking的作用
+    + 编译阶段利用ES的模块化判断有哪些模块已经加载
+    + 判断哪些模块和变量，没有被使用或引用，从而删除对应代码
+
+#### 路由原理浅析
++ 前端路由的出现原因
+  + 单页面的应用
++ 前端路由的原理
+  + hash模式（监听hashchange事件，通过路由的变化进行DOM的重渲染）
+  + history模式 （监听原生的popstate事件，通过路由的变化进行DOM的重渲染）
